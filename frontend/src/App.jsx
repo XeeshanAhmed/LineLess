@@ -3,6 +3,7 @@ import RoleSelectionPage from "./pages/RoleSelectionPage";
 import LoginPage from "./pages/LoginPage";
 import SignupUserPage from "./pages/SignupUserPage";
 import SignupBusinessPage from "./pages/SignupBusinessPage";
+import UserDashboard from "./pages/UserDashboard"; // ✅ NEW IMPORT
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
       {/* ✍️ Signup pages */}
       <Route path="/signup/user" element={<SignupUserPage />} />
       <Route path="/signup/business" element={<SignupBusinessPage />} />
+
+      {/* 🧑‍💼 User dashboard */}
+      <Route path="/dashboard/user" element={<UserDashboard />} />
     </Routes>
   );
 }

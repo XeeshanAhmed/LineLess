@@ -1,15 +1,34 @@
 import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
-import { useParams, Link } from "react-router-dom";
 
 const LoginPage = () => {
   const { role } = useParams();
   const [showIntro, setShowIntro] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowIntro(false), 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // 🧪 Replace this with actual authentication logic
+    if (username && password) {
+      if (role === "user") {
+        navigate("/dashboard/user");
+      } else if (role === "business") {
+        // You can set business dashboard route here in future
+        alert("Business dashboard coming soon!");
+      }
+    } else {
+      alert("Please enter valid credentials.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden font-sans relative">
@@ -24,7 +43,7 @@ const LoginPage = () => {
             <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-4000"></div>
           </div>
 
-          {/* ✨ Floating Slogans - Balanced layout */}
+          {/* ✨ Floating Slogans */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <div className="absolute top-[10%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">
               LineLess
@@ -45,18 +64,23 @@ const LoginPage = () => {
             <h2 className="text-3xl font-bold mb-6 text-center">
               Login as {role}
             </h2>
-            <form className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4">
               <input
                 type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder={role === "business" ? "Business Name" : "User Name"}
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
 
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
+
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition duration-300"
@@ -65,7 +89,7 @@ const LoginPage = () => {
               </button>
             </form>
 
-            {/* ✅ Updated dynamic signup link */}
+            {/* ✅ Signup link */}
             <div className="text-center mt-4">
               <p>
                 Don&apos;t have an account?{" "}
