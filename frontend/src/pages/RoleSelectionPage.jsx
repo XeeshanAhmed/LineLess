@@ -1,15 +1,20 @@
-import { useEffect, useState } from "react";
-import Preloader from "../components/Preloader";
-import { useParams, Link } from "react-router-dom";
+// src/pages/RoleSelectionPage.jsx
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Preloader from "../components/Preloader"; // Don't forget this!
 
-const LoginPage = () => {
-  const { role } = useParams();
+const RoleSelectionPage = () => {
+  const navigate = useNavigate();
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 1000);
+    const timer = setTimeout(() => setShowIntro(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleRoleSelection = (role) => {
+    navigate(`/login/${role}`); // Navigates to the login page with the selected role
+  };
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden font-sans relative">
@@ -24,57 +29,38 @@ const LoginPage = () => {
             <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-4000"></div>
           </div>
 
-          {/* ✨ Floating Slogans - Balanced layout */}
+          {/* ✨ Floating Slogans */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <div className="absolute top-[10%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">
-              LineLess
+              Ready to Join Us?
             </div>
             <div className="absolute top-[15%] right-[10%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">
-              Say goodbye to waiting lines
+              Are you a Business?
             </div>
             <div className="absolute bottom-[20%] left-[15%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-4000">
-              Smart Tokening
+              Or Are You a User?
             </div>
             <div className="absolute bottom-[10%] right-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text animation-delay-6000">
-              No More Queues
+              We Make it Easy for You
             </div>
           </div>
 
-          {/* 🔐 Login Box */}
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10">
-            <h2 className="text-3xl font-bold mb-6 text-center">
-              Login as {role}
-            </h2>
-            <form className="space-y-4">
-              <input
-                type="text"
-                placeholder="Username"
-                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-              />
+          {/* 🔐 Role Selection Box */}
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10 text-center">
+            <h2 className="text-3xl font-bold mb-6">Select Your Role</h2>
+            <div className="space-y-4">
               <button
-                type="submit"
+                onClick={() => handleRoleSelection("user")}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition duration-300"
               >
-                Login
+                Login as User
               </button>
-            </form>
-
-            {/* ✅ Updated dynamic signup link */}
-            <div className="text-center mt-4">
-              <p>
-                Don&apos;t have an account?{" "}
-                <Link
-                  to={`/signup/${role}`}
-                  className="text-blue-400 hover:underline"
-                >
-                  Sign up here
-                </Link>
-              </p>
+              <button
+                onClick={() => handleRoleSelection("business")}
+                className="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition duration-300"
+              >
+                Login as Business
+              </button>
             </div>
           </div>
         </div>
@@ -83,4 +69,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RoleSelectionPage;

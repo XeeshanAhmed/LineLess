@@ -1,0 +1,145 @@
+// src/pages/SignupBusinessPage.jsx
+import { useEffect, useState } from "react";
+import Preloader from "../components/Preloader";
+
+const SignupBusinessPage = () => {
+  const [showIntro, setShowIntro] = useState(true);
+  const [hasDepartments, setHasDepartments] = useState(false);
+  const [departments, setDepartments] = useState([""]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleDeptChange = (index, value) => {
+    const updated = [...departments];
+    updated[index] = value;
+    setDepartments(updated);
+  };
+
+  const addDepartmentField = () => {
+    setDepartments([...departments, ""]);
+  };
+
+  const removeDepartmentField = (index) => {
+    const updated = [...departments];
+    updated.splice(index, 1);
+    setDepartments(updated);
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white overflow-hidden font-sans relative">
+      {showIntro ? (
+        <Preloader />
+      ) : (
+        <div className="relative h-screen flex items-center justify-center overflow-hidden">
+          {/* 🌀 Background Blobs */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-purple-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob"></div>
+            <div className="absolute top-1/3 left-1/2 w-72 h-72 bg-pink-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-2000"></div>
+            <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-4000"></div>
+          </div>
+
+          {/* ✨ Floating Slogans */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="absolute top-[15%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">
+              LineLess
+            </div>
+            <div className="absolute top-[10%] right-[5%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">
+              Say goodbye to waiting lines
+            </div>
+            <div className="absolute bottom-[20%] left-[15%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-4000">
+              Smart Tokening
+            </div>
+            <div className="absolute bottom-[10%] right-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text animation-delay-6000">
+              No More Queues
+            </div>
+          </div>
+
+          {/* 🔐 Business Signup Box */}
+          <div
+            className={`bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10 max-h-[80vh] ${
+              hasDepartments ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : ""
+            }`}
+          >
+            <h2 className="text-3xl font-bold mb-6 text-center">
+              Business Sign Up
+            </h2>
+            <form className="space-y-4">
+              <input
+                type="email"
+                placeholder="Email"
+                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <input
+                type="text"
+                placeholder="Business Name"
+                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              <div className="flex items-center space-x-2 text-sm text-white">
+                <input
+                  type="checkbox"
+                  checked={hasDepartments}
+                  onChange={() => setHasDepartments(!hasDepartments)}
+                  className="accent-blue-500"
+                />
+                <label>Does your business have departments?</label>
+              </div>
+
+              {hasDepartments &&
+                departments.map((dept, idx) => (
+                  <div key={idx} className="relative">
+                    <input
+                      type="text"
+                      placeholder={`Department ${idx + 1}`}
+                      value={dept}
+                      onChange={(e) => handleDeptChange(idx, e.target.value)}
+                      className="w-full px-4 py-3 pr-10 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeDepartmentField(idx)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white hover:scale-110 transition duration-200 text-lg"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+
+              {hasDepartments && (
+                <button
+                  type="button"
+                  onClick={addDepartmentField}
+                  className="text-sm text-blue-300 underline"
+                >
+                  + Add another department
+                </button>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition duration-300"
+              >
+                Sign Up
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SignupBusinessPage;
