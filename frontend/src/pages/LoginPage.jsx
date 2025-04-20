@@ -1,83 +1,86 @@
-// src/pages/LoginPage.jsx
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import Preloader from "../components/Preloader";
+import { useParams, Link } from "react-router-dom";
 
-export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    role: 'user',
-  });
+const LoginPage = () => {
+  const { role } = useParams();
+  const [showIntro, setShowIntro] = useState(true);
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
-      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back 👋</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              required
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Enter your email"
-            />
+    <div className="min-h-screen bg-black text-white overflow-hidden font-sans relative">
+      {showIntro ? (
+        <Preloader />
+      ) : (
+        <div className="relative h-screen flex items-center justify-center overflow-hidden">
+          {/* 🌀 Animated Background Blobs */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-purple-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob"></div>
+            <div className="absolute top-1/3 left-1/2 w-72 h-72 bg-pink-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-2000"></div>
+            <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-4000"></div>
           </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              required
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Enter your password"
-            />
+          {/* ✨ Floating Slogans - Balanced layout */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="absolute top-[10%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">
+              LineLess
+            </div>
+            <div className="absolute top-[15%] right-[10%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">
+              Say goodbye to waiting lines
+            </div>
+            <div className="absolute bottom-[20%] left-[15%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-4000">
+              Smart Tokening
+            </div>
+            <div className="absolute bottom-[10%] right-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text animation-delay-6000">
+              No More Queues
+            </div>
           </div>
 
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select Role</label>
-            <select
-              name="role"
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="user">User</option>
-              <option value="business">Business</option>
-            </select>
+          {/* 🔐 Login Box */}
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10">
+            <h2 className="text-3xl font-bold mb-6 text-center">
+              Login as {role}
+            </h2>
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Username"
+                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition duration-300"
+              >
+                Login
+              </button>
+            </form>
+
+            {/* ✅ Updated dynamic signup link */}
+            <div className="text-center mt-4">
+              <p>
+                Don&apos;t have an account?{" "}
+                <Link
+                  to={`/signup/${role}`}
+                  className="text-blue-400 hover:underline"
+                >
+                  Sign up here
+                </Link>
+              </p>
+            </div>
           </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-200 shadow-md"
-          >
-            Login
-          </button>
-
-          {/* Optional: Forgot Password */}
-          <p className="text-center text-sm text-gray-500 mt-4">
-            Forgot your password?{' '}
-            <a href="#" className="text-blue-600 hover:underline font-medium">
-              Reset here
-            </a>
-          </p>
-        </form>
-      </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default LoginPage;
