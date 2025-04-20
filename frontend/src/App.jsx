@@ -1,18 +1,22 @@
-// src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
+import { Routes, Route } from "react-router-dom";
+import RoleSelectionPage from "./pages/RoleSelectionPage";
+import LoginPage from "./pages/LoginPage";
+import SignupUserPage from "./pages/SignupUserPage";
+import SignupBusinessPage from "./pages/SignupBusinessPage";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+    <Routes>
+      {/* 🌟 Role selection shown after preloader */}
+      <Route path="/" element={<RoleSelectionPage />} />
 
-        <Route path="/login" element={<LoginPage />} />
+      {/* 🔐 Login pages for user/business */}
+      <Route path="/login/:role" element={<LoginPage />} />
 
-      </Routes>
-    </Router>
+      {/* ✍️ Signup pages */}
+      <Route path="/signup/user" element={<SignupUserPage />} />
+      <Route path="/signup/business" element={<SignupBusinessPage />} />
+    </Routes>
   );
 }
 
