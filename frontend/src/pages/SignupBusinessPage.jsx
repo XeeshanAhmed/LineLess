@@ -1,4 +1,3 @@
-// src/pages/SignupBusinessPage.jsx
 import { useEffect, useState } from "react";
 import Preloader from "../components/Preloader";
 
@@ -6,6 +5,12 @@ const SignupBusinessPage = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [hasDepartments, setHasDepartments] = useState(false);
   const [departments, setDepartments] = useState([""]);
+
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => setShowIntro(false), 1000);
@@ -26,6 +31,28 @@ const SignupBusinessPage = () => {
     const updated = [...departments];
     updated.splice(index, 1);
     setDepartments(updated);
+  };
+
+  const handleSignupSubmit = (e) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    const fakeOtp = "1234"; // Simulated OTP
+    setGeneratedOtp(fakeOtp);
+    setShowOtpModal(true);
+  };
+
+  const handleOtpVerify = () => {
+    if (otp === generatedOtp) {
+      alert("Business account created successfully!");
+      setShowOtpModal(false);
+      // You can reset form here
+    } else {
+      setOtpError("Incorrect OTP. Please try again.");
+    }
   };
 
   return (
@@ -60,16 +87,20 @@ const SignupBusinessPage = () => {
           {/* 🔐 Business Signup Box */}
           <div
             className={`bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10 max-h-[80vh] ${
-              hasDepartments ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : ""
+              hasDepartments
+                ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+                : ""
             }`}
           >
             <h2 className="text-3xl font-bold mb-6 text-center">
               Business Sign Up
             </h2>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSignupSubmit}>
               <input
                 type="email"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
@@ -136,6 +167,49 @@ const SignupBusinessPage = () => {
               </button>
             </form>
           </div>
+
+          {/* 📩 OTP Modal */}
+          {showOtpModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl w-[90%] sm:w-[350px] text-white relative">
+                <h3 className="text-xl font-semibold mb-2 text-center">
+                  Verify Your Email
+                </h3>
+                <p className="text-sm text-center text-white/80 mb-4 px-2">
+                  We've sent a 4-digit OTP to{" "}
+                  <span className="font-medium">{email}</span>. Please enter it
+                  below to complete your registration.
+                </p>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={4}
+                  className="w-full px-4 py-3 text-center text-xl tracking-widest bg-white/20 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 mb-2"
+                  placeholder="____"
+                />
+                {otpError && (
+                  <p className="text-red-400 text-sm text-center mb-2">
+                    {otpError}
+                  </p>
+                )}
+                <div className="flex justify-center gap-4 mt-4">
+                  <button
+                    onClick={() => setShowOtpModal(false)}
+                    className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleOtpVerify}
+                    className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
+                  >
+                    Verify
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

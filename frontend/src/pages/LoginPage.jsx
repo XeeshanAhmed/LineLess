@@ -48,9 +48,10 @@ const LoginPage = () => {
             <form className="space-y-4">
               <input
                 type="text"
-                placeholder="Username"
+                placeholder={role === "business" ? "Business Name" : "User Name"}
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
+
               <input
                 type="password"
                 placeholder="Password"
