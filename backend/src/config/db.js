@@ -2,7 +2,7 @@ import 'dotenv/config';
 import mongoose from 'mongoose'
 import { DB_NAME } from '../constants/constants.js'
 
-const connString=`${process.env.MONGO_URI}`; //ADD DB NAME HERE WITH SLASH
+const connString=`${process.env.MONGO_URI}/${DB_NAME}`; //ADD DB NAME HERE WITH SLASH
 
 const connectDB=async()=>{
     try {
