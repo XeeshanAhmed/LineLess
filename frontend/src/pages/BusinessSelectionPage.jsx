@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Preloader from "../components/Preloader";
 
 const dummyBusinesses = [
   { name: "QuickFix Electronics", hasDepartments: true, departments: ["Repair", "Sales", "Support"] },
@@ -9,24 +10,28 @@ const dummyBusinesses = [
 
 const BusinessSelectionPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 1500); // Preloader duration
+    return () => clearTimeout(timeout);
+  }, []);
 
   const filteredBusinesses = dummyBusinesses.filter((business) =>
     business.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSelect = (business) => {
-    // Save the selected business in local storage
     localStorage.setItem("selectedBusiness", JSON.stringify(business));
-
-    // If the business has departments, navigate to the department selection page
     if (business.hasDepartments) {
-      navigate("/select-department");
+      navigate("/select-user-department");
     } else {
-      // Otherwise, navigate directly to the dashboard
       navigate("/dashboard/user");
     }
   };
+
+  if (loading) return <Preloader />;
 
   return (
     <div className="min-h-screen bg-black text-white p-10 transition-all animate-fadeIn">

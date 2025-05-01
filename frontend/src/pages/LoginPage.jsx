@@ -19,9 +19,16 @@ const LoginPage = () => {
 
     if (username && password) {
       if (role === "user") {
-        navigate("/select-business"); // Directing to business selection
+        navigate("/select-business");
       } else if (role === "business") {
-        alert("Business dashboard coming soon!"); // Placeholder
+        // Dummy logic — assume business has departments
+        const hasDepartments = true;
+
+        if (hasDepartments) {
+          navigate("/select-business-department");
+        } else {
+          navigate("/dashboard/business");
+        }
       }
     } else {
       alert("Please enter valid credentials.");
@@ -67,7 +74,9 @@ const LoginPage = () => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder={role === "business" ? "Business Name" : "User Name"}
+                placeholder={
+                  role === "business" ? "Business Name" : "User Name"
+                }
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
 
