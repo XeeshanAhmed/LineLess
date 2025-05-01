@@ -61,7 +61,8 @@ const navigate = useNavigate();
         email,
         businessName,
         password,
-        hasDepartments
+        hasDepartments,
+        departments: hasDepartments ? departments.filter(d => d.trim() !== "") : []
       };
   
       const res = await signupBusiness(payload); 
