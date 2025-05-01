@@ -64,6 +64,7 @@ const navigate = useNavigate();
         hasDepartments,
         departments: hasDepartments ? departments.filter(d => d.trim() !== "") : []
       };
+      console.log(payload);
   
       const res = await signupBusiness(payload); 
   
