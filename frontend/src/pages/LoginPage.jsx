@@ -10,20 +10,18 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 1000);
+    const timer = setTimeout(() => setShowIntro(false), 1000); // Change timing here as needed
     return () => clearTimeout(timer);
   }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // 🧪 Replace this with actual authentication logic
     if (username && password) {
       if (role === "user") {
-        navigate("/dashboard/user");
+        navigate("/select-business"); // Directing to business selection
       } else if (role === "business") {
-        // You can set business dashboard route here in future
-        alert("Business dashboard coming soon!");
+        alert("Business dashboard coming soon!"); // Placeholder
       }
     } else {
       alert("Please enter valid credentials.");
@@ -35,7 +33,7 @@ const LoginPage = () => {
       {showIntro ? (
         <Preloader />
       ) : (
-        <div className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div className="relative h-screen flex items-center justify-center overflow-hidden transition-all duration-500">
           {/* 🌀 Animated Background Blobs */}
           <div className="absolute inset-0 -z-10 overflow-hidden">
             <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-purple-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob"></div>

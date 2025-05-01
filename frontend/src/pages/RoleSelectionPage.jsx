@@ -6,6 +6,7 @@ import Preloader from "../components/Preloader"; // Don't forget this!
 const RoleSelectionPage = () => {
   const navigate = useNavigate();
   const [showIntro, setShowIntro] = useState(true);
+  const [isLeaving, setIsLeaving] = useState(false); // To trigger the "out" effect
 
   useEffect(() => {
     const timer = setTimeout(() => setShowIntro(false), 2000);
@@ -13,7 +14,11 @@ const RoleSelectionPage = () => {
   }, []);
 
   const handleRoleSelection = (role) => {
-    navigate(`/login/${role}`); // Navigates to the login page with the selected role
+    // Set the page leaving effect before navigating
+    setIsLeaving(true);
+    setTimeout(() => {
+      navigate(`/login/${role}`); // Navigates to the login page with the selected role
+    }, 500); // Duration of the out transition
   };
 
   return (
@@ -21,7 +26,11 @@ const RoleSelectionPage = () => {
       {showIntro ? (
         <Preloader />
       ) : (
-        <div className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div
+          className={`relative h-screen flex items-center justify-center overflow-hidden transition-all duration-500 ${
+            isLeaving ? "opacity-0" : "opacity-100"
+          }`} // Fade-out effect when leaving
+        >
           {/* 🌀 Animated Background Blobs */}
           <div className="absolute inset-0 -z-10 overflow-hidden">
             <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-purple-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob"></div>
