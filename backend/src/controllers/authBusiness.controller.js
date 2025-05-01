@@ -32,7 +32,7 @@ const businessSignUp = async (req, res) => {
     if (hasDepartments && Array.isArray(departments) && departments.length > 0) {
       for (const dept of departments) {
         await Department.create({
-          name: dept.name,
+          name: dept.trim(),
           businessId: business._id,
           isDefault: false
         });
@@ -71,12 +71,17 @@ const businessLogin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, business.password);
     if (!isMatch) throw new Error("Incorrect password");
-
+    
+    const departments = await Department.find({ businessId: business._id }).select("name -_id").lean();
+    const departmentNames = departments.map((d) => d.name);
+    
     const token = jwt.sign({ id: business._id, role: business.role }, JWT_SECRET);
 
     res.status(200).json({
       token,
       role: business.role,
+      businessName: business.businessName,
+      departments: departmentNames,
       message: "Login successful"
     });
 

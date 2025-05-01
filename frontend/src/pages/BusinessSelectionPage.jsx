@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
+import { fetchBusinesses } from "../services/fetchBusinessService";
 
-const dummyBusinesses = [
-  { name: "QuickFix Electronics", hasDepartments: true, departments: ["Repair", "Sales", "Support"] },
-  { name: "HealthyBite Cafe", hasDepartments: false, departments: [] },
-  { name: "BrightSmiles Dental", hasDepartments: true, departments: ["Consultation", "Cleaning", "Surgery"] },
-];
+
 
 const BusinessSelectionPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [businesses, setBusinesses] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,22 +16,45 @@ const BusinessSelectionPage = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  const filteredBusinesses = dummyBusinesses.filter((business) =>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchBusinesses();
+        setBusinesses(data);
+        
+      } catch (err) {
+        console.error("Failed to load businesses", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, []);
+  
+
+  const filteredBusinesses = businesses.filter((business) =>
     business.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const handleSelect = (business) => {
     localStorage.setItem("selectedBusiness", JSON.stringify(business));
-    if (business.hasDepartments) {
-      navigate("/select-user-department");
-    } else {
+  
+    const isOnlyGeneral =
+      business.departments.length === 1 &&
+      business.departments[0].toLowerCase() === "general";
+  
+    if (!business.hasDepartments || isOnlyGeneral) {
       navigate("/dashboard/user");
+    } else {
+      navigate("/select-user-department");
     }
   };
+  
 
   if (loading) return <Preloader />;
 
   return (
+    
     <div className="min-h-screen bg-black text-white p-10 transition-all animate-fadeIn">
       <h1 className="text-3xl font-bold mb-6 animate-float">Select a Business</h1>
       <input
@@ -45,18 +66,28 @@ const BusinessSelectionPage = () => {
       />
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {filteredBusinesses.map((biz, i) => (
-          <button
-            key={i}
-            onClick={() => handleSelect(biz)}
-            className="p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg animate-fadeIn"
-          >
-            <h2 className="text-lg font-semibold">{biz.name}</h2>
-            <p className="text-sm text-white/60">
-              {biz.hasDepartments ? "Multiple Departments" : "No Departments"}
-            </p>
-          </button>
-        ))}
+      {filteredBusinesses.map((biz, i) => {
+  const departments = biz.departments || [];
+  const hasOnlyGeneral =departments.length === 1 && departments[0].toLowerCase() === "general";
+
+
+  return (
+    <button
+      key={i}
+      onClick={() => handleSelect(biz)}
+      className="p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg animate-fadeIn"
+    >
+      <h2 className="text-lg font-semibold">{biz.name}</h2>
+      <p className="text-sm text-white/60">
+        {hasOnlyGeneral
+          ? "No Departments"
+          :"Multiple Departments"}
+      </p>
+    </button>
+  );
+})}
+
+
       </div>
     </div>
   );

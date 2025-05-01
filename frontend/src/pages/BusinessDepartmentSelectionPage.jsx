@@ -11,16 +11,23 @@ const BusinessDepartmentSelectionPage = () => {
   useEffect(() => {
     const storedBusiness = JSON.parse(localStorage.getItem("selectedBusiness"));
     if (!storedBusiness) {
-      navigate("/business-selection");
-    } else {
-      setSelectedBusiness(storedBusiness);
+      navigate("/login/business");
+      return;
     }
 
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 800);
+    const departments = storedBusiness.departments || [];
+    const isOnlyGeneral =
+      departments.length === 1 &&
+      departments[0].toLowerCase() === "general";
 
-    return () => clearTimeout(timeout);
+    if (isOnlyGeneral) {
+      localStorage.setItem("selectedDepartment", "General");
+      navigate("/dashboard/business");
+      return;
+    }
+
+    setSelectedBusiness(storedBusiness);
+    setLoading(false);
   }, [navigate]);
 
   const handleDeptSelect = (dept) => {
@@ -37,7 +44,7 @@ const BusinessDepartmentSelectionPage = () => {
   return (
     <div className="min-h-screen bg-black text-white p-10 transition-all animate-fadeIn">
       <h1 className="text-3xl font-bold mb-6 animate-float">
-        Select a Department – {selectedBusiness?.name}
+        Select a Department – {selectedBusiness.name}
       </h1>
 
       <input
