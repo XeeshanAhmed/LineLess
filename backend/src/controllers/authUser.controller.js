@@ -10,10 +10,11 @@ console.log(JWT_SECRET);
 
 const signUp=async (req,res)=>{
     try {
-        const {email,password,role}=req.body;
+        const {email,username,password,role}=req.body;
         const hashedPass=await bcrypt.hash(password,10);
         const user=new User({
             email: email,
+            username:username,
             password:hashedPass,
             role:role||'user'
         })

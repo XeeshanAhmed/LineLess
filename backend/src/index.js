@@ -2,14 +2,20 @@ import express from "express"
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import userRouter from "./routes/authuser.route.js";
+import businessRoutes from "./routes/authBusiness.route.js";
+
+import cors from "cors";
 
 
 dotenv.config();
 const app=express();
 const PORT=process.env.PORT||8000;
 
+app.use(cors());
+
 app.use(express.json());
 app.use('/api/userAuth',userRouter);
+app.use('/api/businessAuth', businessRoutes);
 
 
 
