@@ -32,7 +32,7 @@ const businessSignUp = async (req, res) => {
     if (hasDepartments && Array.isArray(departments) && departments.length > 0) {
       for (const dept of departments) {
         await Department.create({
-          name: dept.name,
+          name: dept.trim(),
           businessId: business._id,
           isDefault: false
         });
