@@ -41,7 +41,7 @@ const LoginPage = () => {
       localStorage.setItem("token", res.token);
   
       if (res.role === "user") {
-        navigate("/dashboard/user");
+        navigate("/select-business");
       } else if (res.role === "business") {
         navigate("/dashboard/business");
       } else {
