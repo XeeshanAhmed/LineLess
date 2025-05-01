@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
-import { loginUser } from "../services/authService";
+import { loginUser } from "../services/authUserService";
+import { loginBusiness } from "../services/authBusinessService";
 
 const LoginPage = () => {
   const { role } = useParams();
@@ -24,15 +25,21 @@ const LoginPage = () => {
     }
   
     try {
-      const res = await loginUser({
-        email: username,
+      const loginData = {
+        email: username, 
         password,
-      });
+      };
   
-      // Optional: Store token in localStorage for future auth
+      let res;
+  
+      if (role === "business") {
+        res = await loginBusiness(loginData);
+      } else {
+        res = await loginUser(loginData);
+      }
+  
       localStorage.setItem("token", res.token);
   
-      // Navigate based on backend role
       if (res.role === "user") {
         navigate("/dashboard/user");
       } else if (res.role === "business") {

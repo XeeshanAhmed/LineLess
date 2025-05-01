@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { signupUser } from "../services/authService";
+import { signupUser } from "../services/authUserService";
 import { useNavigate } from "react-router-dom";
 
 import Preloader from "../components/Preloader";

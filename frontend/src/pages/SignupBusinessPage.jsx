@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import Preloader from "../components/Preloader";
+import { useNavigate } from "react-router-dom";
+import { signupBusiness } from "../services/authBusinessService";
 
 const SignupBusinessPage = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [hasDepartments, setHasDepartments] = useState(false);
   const [departments, setDepartments] = useState([""]);
+  const [businessName, setBusinessName] = useState("");
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
+const navigate = useNavigate();
 
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [email, setEmail] = useState("");
@@ -33,27 +39,54 @@ const SignupBusinessPage = () => {
     setDepartments(updated);
   };
 
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
+  
     if (!email || !email.includes("@")) {
       alert("Please enter a valid email address.");
       return;
     }
-
-    const fakeOtp = "1234"; // Simulated OTP
-    setGeneratedOtp(fakeOtp);
-    setShowOtpModal(true);
-  };
-
-  const handleOtpVerify = () => {
-    if (otp === generatedOtp) {
-      alert("Business account created successfully!");
-      setShowOtpModal(false);
-      // You can reset form here
-    } else {
-      setOtpError("Incorrect OTP. Please try again.");
+  
+    if (!businessName || !password || !confirmPassword) {
+      alert("Please fill in all fields.");
+      return;
     }
+  
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+    try {
+      const payload = {
+        email,
+        businessName,
+        password,
+        hasDepartments
+      };
+  
+      const res = await signupBusiness(payload); 
+  
+      localStorage.setItem("token", res.token);
+      alert("Business account created successfully!");
+      setShowOtpModal(true);
+    } catch (err) {
+      alert(err.response?.data?.message || "Signup failed.");
+      setOtpError("Signup error. Please check inputs.");
+    }
+    const fakeOtp = "1234"; 
+    setGeneratedOtp(fakeOtp);
   };
+  
+  const handleOtpVerify = async () => {
+    if (otp !== generatedOtp) {
+      setOtpError("Incorrect OTP. Please try again.");
+      return;
+    }
+    navigate("/dashboard/business");
+    setShowOtpModal(false);
+    
+  };
+  
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden font-sans relative">
@@ -106,16 +139,22 @@ const SignupBusinessPage = () => {
               <input
                 type="text"
                 placeholder="Business Name"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="password"
                 placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
               />
 
