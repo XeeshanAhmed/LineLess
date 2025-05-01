@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import {
-  FaQrcode,
-  FaChartBar,
-  FaCommentDots,
+  FaUsers,
+  FaChartLine,
+  FaComments,
   FaUserCircle,
   FaSignOutAlt,
   FaIdBadge,
@@ -10,16 +10,14 @@ import {
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
 
-const UserDashboard = () => {
-  const [activeTab, setActiveTab] = useState("generate");
+const BusinessDashboard = () => {
+  const [activeTab, setActiveTab] = useState("queue");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 1500);
-
     const business = JSON.parse(localStorage.getItem("selectedBusiness"));
     const department = localStorage.getItem("selectedDepartment");
 
@@ -37,6 +35,11 @@ const UserDashboard = () => {
         setSelectedDepartment(department);
       }
     }
+
+    // Add slight delay for preloader effect
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 800); // 800ms to match animation feel
 
     return () => clearTimeout(timeout);
   }, []);
@@ -72,29 +75,18 @@ const UserDashboard = () => {
             )}
           </div>
         )}
-
         <hr></hr>
 
         <nav className="space-y-2">
           <button
-            onClick={() => handleTabClick("generate")}
+            onClick={() => handleTabClick("queue")}
             className={`flex items-center w-full px-4 py-2 rounded-lg text-left transition-all ${
-              activeTab === "generate"
+              activeTab === "queue"
                 ? "bg-white/20 text-white"
                 : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
-            <FaQrcode className="mr-3" /> Generate Token
-          </button>
-          <button
-            onClick={() => handleTabClick("snapshot")}
-            className={`flex items-center w-full px-4 py-2 rounded-lg text-left transition-all ${
-              activeTab === "snapshot"
-                ? "bg-white/20 text-white"
-                : "text-white/70 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            <FaChartBar className="mr-3" /> Live Business Snapshot
+            <FaUsers className="mr-3" /> Queue Management
           </button>
           <button
             onClick={() => handleTabClick("feedback")}
@@ -104,7 +96,17 @@ const UserDashboard = () => {
                 : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
-            <FaCommentDots className="mr-3" /> Feedback & Reviews
+            <FaComments className="mr-3" /> View Feedback
+          </button>
+          <button
+            onClick={() => handleTabClick("analytics")}
+            className={`flex items-center w-full px-4 py-2 rounded-lg text-left transition-all ${
+              activeTab === "analytics"
+                ? "bg-white/20 text-white"
+                : "text-white/70 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <FaChartLine className="mr-3" /> View Analytics
           </button>
         </nav>
       </aside>
@@ -125,9 +127,6 @@ const UserDashboard = () => {
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-lg rounded-lg shadow-lg py-2 z-50 text-sm">
                 <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center">
-                  <FaTicketAlt className="mr-2" /> Active Tokens
-                </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center">
                   <FaIdBadge className="mr-2" /> Profile Details
                 </button>
                 <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500">
@@ -140,14 +139,14 @@ const UserDashboard = () => {
 
         {/* Dynamic Content */}
         <div className="mt-20">
-          {activeTab === "generate" && (
-            <h2 className="text-2xl font-bold">🎟️ Generate Token Page</h2>
-          )}
-          {activeTab === "snapshot" && (
-            <h2 className="text-2xl font-bold">📊 Live Business Snapshot</h2>
+          {activeTab === "queue" && (
+            <h2 className="text-2xl font-bold">🧾 Queue Management</h2>
           )}
           {activeTab === "feedback" && (
-            <h2 className="text-2xl font-bold">💬 Feedback and Reviews</h2>
+            <h2 className="text-2xl font-bold">💬 View Feedback</h2>
+          )}
+          {activeTab === "analytics" && (
+            <h2 className="text-2xl font-bold">📊 View Analytics</h2>
           )}
         </div>
       </div>
@@ -155,4 +154,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+export default BusinessDashboard;

@@ -5,7 +5,9 @@ import SignupUserPage from "./pages/SignupUserPage";
 import SignupBusinessPage from "./pages/SignupBusinessPage";
 import UserDashboard from "./pages/UserDashboard";
 import BusinessSelectionPage from "./pages/BusinessSelectionPage";
-import DepartmentSelectionPage from "./pages/DepartmentSelectionPage";
+import BusinessDepartmentSelectionPage from "./pages/BusinessDepartmentSelectionPage";
+import UserDepartmentSelectionPage from "./pages/UserDepartmentSelectionPage";
+import BusinessDashboard from "./pages/BusinessDashboard";
 
 function App() {
   return (
@@ -16,7 +18,9 @@ function App() {
       <Route path="/signup/business" element={<SignupBusinessPage />} />
       <Route path="/dashboard/user" element={<UserDashboard />} />
       <Route path="/select-business" element={<BusinessSelectionPage />} />
-      <Route path="/select-department" element={<DepartmentSelectionPage />} />
+      <Route path="/select-user-department" element={<UserDepartmentSelectionPage />} />
+      <Route path="/select-business-department" element={<BusinessDepartmentSelectionPage />} />
+      <Route path="/dashboard/business" element={<BusinessDashboard />} />
     </Routes>
   );
 }
