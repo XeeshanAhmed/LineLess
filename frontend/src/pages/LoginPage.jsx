@@ -42,9 +42,28 @@ const LoginPage = () => {
   
       if (res.role === "user") {
         navigate("/select-business");
-      } else if (res.role === "business") {
-        navigate("/dashboard/business");
-      } else {
+      } 
+      else if (res.role === "business") {
+        const departments = res.departments || [];
+      
+        const isOnlyGeneral =
+          departments.length === 1 &&
+          departments[0].toLowerCase() === "general";
+      
+        localStorage.setItem("selectedBusiness", JSON.stringify({
+          name: res.businessName,
+          departments
+        }));
+      
+        if (isOnlyGeneral) {
+          localStorage.setItem("selectedDepartment", "General");
+          navigate("/dashboard/business");
+        } else {
+          navigate("/select-business-department");
+        }
+      }
+      
+      else {
         alert("Unknown role");
       }
     } catch (err) {
