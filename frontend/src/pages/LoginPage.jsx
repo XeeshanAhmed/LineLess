@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
+import { loginUser } from "../services/authService";
 
 const LoginPage = () => {
   const { role } = useParams();
@@ -14,24 +15,33 @@ const LoginPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (username && password) {
-      if (role === "user") {
-        navigate("/select-business");
-      } else if (role === "business") {
-        // Dummy logic — assume business has departments
-        const hasDepartments = true;
-
-        if (hasDepartments) {
-          navigate("/select-business-department");
-        } else {
-          navigate("/dashboard/business");
-        }
-      }
-    } else {
+  
+    if (!username || !password) {
       alert("Please enter valid credentials.");
+      return;
+    }
+  
+    try {
+      const res = await loginUser({
+        email: username,
+        password,
+      });
+  
+      // Optional: Store token in localStorage for future auth
+      localStorage.setItem("token", res.token);
+  
+      // Navigate based on backend role
+      if (res.role === "user") {
+        navigate("/dashboard/user");
+      } else if (res.role === "business") {
+        navigate("/dashboard/business");
+      } else {
+        alert("Unknown role");
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Login failed.");
     }
   };
 

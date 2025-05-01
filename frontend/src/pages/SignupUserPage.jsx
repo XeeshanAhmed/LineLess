@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { signupUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
+
 import Preloader from "../components/Preloader";
 
 const SignupUserPage = () => {
@@ -19,24 +22,38 @@ const SignupUserPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSignupSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
       alert("Please enter a valid email address.");
       return;
     }
+    try {
+      const response = await signupUser({
+        email,
+        password,
+        username,
+        role: "user"
+      });
 
-    // Simulate OTP generation
-    const fakeOtp = "1234";
+      console.log(response.message);
+      const fakeOtp = "1234";
     setGeneratedOtp(fakeOtp);
     setShowOtpModal(true);
+    } catch (error) {
+      alert(error.response?.data?.message || "Signup failed.");
+    }
+   
   };
-
-  const handleOtpVerify = () => {
+  const handleOtpVerify = async () => {
     if (otp === generatedOtp) {
-      alert("User account created successfully!");
+     
       setShowOtpModal(false);
-      // You can reset form here
+        navigate("/login/user");
+
+
     } else {
       setOtpError("Incorrect OTP. Please try again.");
     }
