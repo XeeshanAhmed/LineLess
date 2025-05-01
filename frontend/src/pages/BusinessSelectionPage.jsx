@@ -44,7 +44,9 @@ const BusinessSelectionPage = () => {
       business.departments[0].toLowerCase() === "general";
   
     if (!business.hasDepartments || isOnlyGeneral) {
+      localStorage.setItem("selectedDepartment", "General");
       navigate("/dashboard/user");
+
     } else {
       navigate("/select-user-department");
     }

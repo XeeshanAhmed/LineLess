@@ -25,18 +25,21 @@ const UserDashboard = () => {
 
     if (business) {
       setSelectedBusiness(business);
-
-      const hasDepartments =
-        business.hasDepartments ||
-        (business.departments && business.departments.length > 0);
-
-      if (!hasDepartments) {
-        localStorage.removeItem("selectedDepartment");
-        setSelectedDepartment(null);
+    
+      const departments = business.departments || [];
+    
+      const isOnlyGeneral =
+        departments.length === 1 && departments[0].toLowerCase() === "general";
+    
+      if (isOnlyGeneral) {
+        localStorage.setItem("selectedDepartment", "General");
+        setSelectedDepartment("General");
       } else {
-        setSelectedDepartment(department);
+        const savedDept = localStorage.getItem("selectedDepartment");
+        setSelectedDepartment(savedDept);
       }
     }
+    
 
     return () => clearTimeout(timeout);
   }, []);
