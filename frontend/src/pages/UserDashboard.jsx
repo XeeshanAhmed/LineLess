@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   FaQrcode,
@@ -14,16 +13,63 @@ import {
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("generate");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+
+  useEffect(() => {
+    const business = JSON.parse(localStorage.getItem("selectedBusiness"));
+    const department = localStorage.getItem("selectedDepartment");
+
+    if (business) {
+      setSelectedBusiness(business);
+
+      // ✅ Handle businesses with NO departments
+      const hasDepartments =
+        business.hasDepartments ||
+        (business.departments && business.departments.length > 0);
+
+      if (!hasDepartments) {
+        // Clear previous department state and storage
+        localStorage.removeItem("selectedDepartment");
+        setSelectedDepartment(null);
+      } else {
+        setSelectedDepartment(department);
+      }
+    }
+  }, []);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
   return (
-    <div className="min-h-screen flex bg-black text-white font-sans">
+    <div
+      className="min-h-screen flex bg-black text-white font-sans animate-fadeIn"
+      style={{
+        animationDuration: "1s",
+        animationTimingFunction: "ease-in-out",
+      }}
+    >
       {/* 🚪 Sidebar */}
       <aside className="w-64 bg-white/10 backdrop-blur-lg shadow-md p-6 space-y-4 hidden sm:block">
         <h1 className="text-2xl font-bold mb-8 text-white">LineLess</h1>
+
+        {/* Business and Department Display */}
+        <div className="mb-6">
+          {selectedBusiness && (
+            <div className="border border-white/20 rounded-2xl bg-white/5 p-4 shadow-md backdrop-blur-sm">
+              <h2 className="text-lg font-semibold text-white/90">
+                {selectedBusiness.name}
+              </h2>
+              {selectedDepartment && (
+                <p className="text-sm text-white/60 mt-1">
+                  {">"} {selectedDepartment}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
         <nav className="space-y-2">
           <button
             onClick={() => handleTabClick("generate")}
