@@ -57,9 +57,11 @@ const businessSignUp = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Signup error:", error);
-    res.status(400).json({ message: error.message });
-  }
+    res.status(400).json({
+        message: "Business already exists",
+        error: true
+    })
+}
 };
 
 const businessLogin = async (req, res) => {
