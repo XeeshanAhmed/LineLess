@@ -8,6 +8,7 @@ import BusinessSelectionPage from "./pages/BusinessSelectionPage";
 import BusinessDepartmentSelectionPage from "./pages/BusinessDepartmentSelectionPage";
 import UserDepartmentSelectionPage from "./pages/UserDepartmentSelectionPage";
 import BusinessDashboard from "./pages/BusinessDashboard";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="/select-user-department" element={<UserDepartmentSelectionPage />} />
       <Route path="/select-business-department" element={<BusinessDepartmentSelectionPage />} />
       <Route path="/dashboard/business" element={<BusinessDashboard />} />
+      <Route path="/forgot-password/:role/:username" element={<ForgotPasswordPage />} />
     </Routes>
   );
 }
