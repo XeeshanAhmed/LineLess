@@ -4,6 +4,8 @@ import connectDB from "./config/db.js";
 import userRouter from "./routes/authuser.route.js";
 import businessRoutes from "./routes/authBusiness.route.js";
 import businessListRoutes from "./routes/businessList.route.js";
+import departmentRoutes from './routes/department.route.js';
+import tokenRoutes from './routes/token.route.js'
 
 import cors from "cors";
 
@@ -18,7 +20,8 @@ app.use(express.json());
 app.use('/api/userAuth',userRouter);
 app.use('/api/businessAuth', businessRoutes);
 app.use("/api/business", businessListRoutes);
-
+app.use("/api/department",departmentRoutes)
+app.use("/api/token",tokenRoutes)
 
 
 app.get('/',(req,res)=>{

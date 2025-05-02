@@ -1,20 +1,37 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Preloader from "../components/Preloader";
+import { useSelector, useDispatch } from "react-redux";
+import { setDepartment } from "../store/slices/businessSlice";
+import { getDepartmentsByBusinessId } from "../services/departmentService"; 
 
 const UserDepartmentSelectionPage = () => {
   const navigate = useNavigate();
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [departments, setDepartments] = useState([])
+  const dispatch = useDispatch();
+  const storedBusiness = useSelector((state) => state.business.selectedBusiness);
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 1500);
-
-    const storedBusiness = JSON.parse(localStorage.getItem("selectedBusiness"));
     if (!storedBusiness) {
       navigate("/business-selection");
     } else {
+      const fetchDepartments = async () => {
+        try {
+          const res = await getDepartmentsByBusinessId(storedBusiness.businessId);
+          console.log('department:',res);
+          setDepartments(res); 
+        } catch (err) {
+          console.error("Error fetching departments:", err);
+          setDepartments([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchDepartments();
       setSelectedBusiness(storedBusiness);
     }
 
@@ -22,12 +39,12 @@ const UserDepartmentSelectionPage = () => {
   }, [navigate]);
 
   const handleDeptSelect = (dept) => {
-    localStorage.setItem("selectedDepartment", dept);
+    dispatch(setDepartment(dept))
     navigate("/dashboard/user");
   };
 
-  const filteredDepartments = selectedBusiness?.departments.filter((dept) =>
-    dept.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDepartments = departments.filter((dept) =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading || !selectedBusiness) return <Preloader />;
@@ -35,7 +52,7 @@ const UserDepartmentSelectionPage = () => {
   return (
     <div className="min-h-screen bg-black text-white p-10 transition-all animate-fadeIn">
       <h1 className="text-3xl font-bold mb-6 animate-float">
-        Select a Department – {selectedBusiness?.name}
+        Select a Department – {selectedBusiness?.businessName}
       </h1>
 
       <input
@@ -53,7 +70,7 @@ const UserDepartmentSelectionPage = () => {
             onClick={() => handleDeptSelect(dept)}
             className="p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg animate-fadeIn"
           >
-            <h2 className="text-lg font-semibold">{dept}</h2>
+            <h2 className="text-lg font-semibold">{dept.name}</h2>
           </button>
         ))}
       </div>

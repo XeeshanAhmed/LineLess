@@ -9,40 +9,68 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
+import { getLatestTokenNumber } from "../services/tokenService";
+import { useSelector } from "react-redux";
+
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("generate");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  // const [selectedBusiness, setSelectedBusiness] = useState(null);
+  // const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
+  const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
   const [loading, setLoading] = useState(true);
+  const [latestToken, setLatestToken] = useState(null);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 1500);
-
-    const business = JSON.parse(localStorage.getItem("selectedBusiness"));
-    const department = localStorage.getItem("selectedDepartment");
-
-    if (business) {
-      setSelectedBusiness(business);
-    
-      const departments = business.departments || [];
-    
-      const isOnlyGeneral =
-        departments.length === 1 && departments[0].toLowerCase() === "general";
-    
-      if (isOnlyGeneral) {
-        localStorage.setItem("selectedDepartment", "General");
-        setSelectedDepartment("General");
-      } else {
-        const savedDept = localStorage.getItem("selectedDepartment");
-        setSelectedDepartment(savedDept);
-      }
+useEffect(() => {
+  const fetchLatestToken = async () => {
+    if (!selectedBusiness || !selectedDepartment) return;
+    setLoading(true);
+    try {
+      const token = await getLatestTokenNumber(
+        selectedBusiness.businessId,
+        selectedDepartment.departmentId
+      );
+      setLatestToken(token);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch latest token:", error);
+      setLatestToken("Error");
+      setLoading(false)
     }
+  };
+
+  fetchLatestToken();
+}, [selectedBusiness, selectedDepartment]);
+
+
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => setLoading(false), 1500);
+
+  //   const business = JSON.parse(localStorage.getItem("selectedBusiness"));
+  //   const department = localStorage.getItem("selectedDepartment");
+
+  //   if (business) {
+  //     setSelectedBusiness(business);
+    
+  //     const departments = business.departments || [];
+    
+  //     const isOnlyGeneral =
+  //       departments.length === 1 && departments[0].toLowerCase() === "general";
+    
+  //     if (isOnlyGeneral) {
+  //       localStorage.setItem("selectedDepartment", "General");
+  //       setSelectedDepartment("General");
+  //     } else {
+  //       const savedDept = localStorage.getItem("selectedDepartment");
+  //       setSelectedDepartment(savedDept);
+  //     }
+  //   }
     
 
-    return () => clearTimeout(timeout);
-  }, []);
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -66,11 +94,11 @@ const UserDashboard = () => {
         {selectedBusiness && (
           <div className="border border-white/20 rounded-2xl bg-white/5 p-4 shadow-md backdrop-blur-sm">
             <h2 className="text-lg font-semibold text-white/90">
-              {selectedBusiness.name}
+              {selectedBusiness.businessName}
             </h2>
             {selectedDepartment && (
               <p className="text-sm text-white/60 mt-1">
-                {">"} {selectedDepartment}
+                {">"} {selectedDepartment.departmentName}
               </p>
             )}
           </div>
@@ -144,7 +172,26 @@ const UserDashboard = () => {
         {/* Dynamic Content */}
         <div className="mt-20">
           {activeTab === "generate" && (
-            <h2 className="text-2xl font-bold">🎟️ Generate Token Page</h2>
+            // <h2 className="text-2xl font-bold">🎟️ Generate Token Page</h2>
+            <div className="max-w-md mx-auto text-center bg-white/5 p-6 rounded-2xl shadow-lg border border-white/20">
+            <h2 className="text-2xl font-bold mb-4 text-white">🎟️ Token Queue</h2>
+        
+            <div className="bg-gradient-to-r from-green-500 to-lime-500 text-black font-extrabold text-4xl p-6 rounded-xl shadow-inner mb-6 tracking-widest animate-pulse">
+              {latestToken !== null ? `#${latestToken}` : "Loading..."}
+            </div>
+        
+            <p className="text-sm text-white/60 mb-6">
+              Business: <span className="font-semibold">{selectedBusiness?.businessName.toUpperCase()}</span><br />
+              Department: <span className="font-semibold">{selectedDepartment?.departmentName.toUpperCase()}</span>
+            </p>
+        
+            <button
+              // onClick={handleGenerateToken}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow-md transition-all"
+            >
+              🚀 Generate New Token
+            </button>
+          </div>
           )}
           {activeTab === "snapshot" && (
             <h2 className="text-2xl font-bold">📊 Live Business Snapshot</h2>

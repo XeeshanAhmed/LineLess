@@ -1,7 +1,22 @@
 import Token from "../models/token.model.js";
 import TokenCounter from "../models/tokenCounter.model.js";
-import Business from "../models/bussiness.model.js";
+import Business from "../models/business.model.js";
 import Department from "../models/department.model.js";
+
+const getLatestToken = async (req, res) => {
+    try {
+      const { businessId, departmentId } = req.params;
+  
+      const counter = await TokenCounter.findOne({ businessId, departmentId });
+  
+      const latestTokenNumber = counter ? counter.count : 0;
+  
+      res.status(200).json({ latestTokenNumber });
+    } catch (error) {
+      console.error("Error fetching latest token:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
 
 const generateToken = async (req, res) => {
   try {
@@ -73,4 +88,4 @@ const generateToken = async (req, res) => {
   }
 };
 
-export { generateToken };
+export { getLatestToken,generateToken };
