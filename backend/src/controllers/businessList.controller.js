@@ -11,8 +11,9 @@ export const getAllBusinessesWithDepartments = async (req, res) => {
         return {
           name: biz.businessName,
           businessId: biz._id,
-          hasDepartments: departments.length > 0,
+          hasDepartments: biz.hasDepartments,
           departments: departments.length > 0 ? departments.map((d) => d.name) : ["General"],
+          defaultDeptId:biz.defaultDepartmentId
         };
       })
     );
