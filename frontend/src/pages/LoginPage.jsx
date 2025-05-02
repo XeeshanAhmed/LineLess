@@ -163,16 +163,16 @@ const LoginPage = () => {
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Back to Role Selection */}
-          <div className="absolute bottom-8 text-center w-full z-10">
-            <button
-              onClick={() => navigate("/")}
-              className="text-sm text-white/70 hover:text-white transition underline"
-            >
-              ← Back to Role Selection
-            </button>
+            {/* Back to Role Selection */}
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => navigate("/")}
+                className="text-sm text-white/70 hover:text-white transition underline"
+              >
+                ← Back to Role Selection
+              </button>
+            </div>
           </div>
         </div>
       )}
