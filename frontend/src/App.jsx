@@ -9,9 +9,12 @@ import BusinessDepartmentSelectionPage from "./pages/BusinessDepartmentSelection
 import UserDepartmentSelectionPage from "./pages/UserDepartmentSelectionPage";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<RoleSelectionPage />} />
       <Route path="/login/:role" element={<LoginPage />} />
@@ -24,6 +27,8 @@ function App() {
       <Route path="/dashboard/business" element={<BusinessDashboard />} />
       <Route path="/forgot-password/:role/:username" element={<ForgotPasswordPage />} />
     </Routes>
+    <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 }
 

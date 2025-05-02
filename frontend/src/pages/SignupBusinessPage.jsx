@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Preloader from "../components/Preloader";
 import { useNavigate } from "react-router-dom";
 import { signupBusiness } from "../services/authBusinessService";
+import { toast } from "react-toastify";
 
 const SignupBusinessPage = () => {
   const [showIntro, setShowIntro] = useState(true);
@@ -19,11 +20,38 @@ const SignupBusinessPage = () => {
   const [otp, setOtp] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [otpSentTime, setOtpSentTime] = useState(null);
+  const [resendTimer, setResendTimer] = useState(30);
+  const [otpExpired, setOtpExpired] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowIntro(false), 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (showOtpModal && resendTimer > 0) {
+      const interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [showOtpModal, resendTimer]);
+
+  useEffect(() => {
+    if (otpSentTime) {
+      const timeout = setTimeout(() => {
+        setOtpExpired(true);
+        toast.error("OTP has expired. Please request a new one.");
+      }, 120000); // 2 minutes
+      return () => clearTimeout(timeout);
+    }
+  }, [otpSentTime]);
+
+  const maskEmail = (email) => {
+    const [user, domain] = email.split("@");
+    return `${user[0]}***@${domain}`;
+  };
 
   const validateInputs = () => {
     const newErrors = {};
@@ -85,30 +113,50 @@ const SignupBusinessPage = () => {
         businessName,
         password,
         hasDepartments,
-        departments: hasDepartments ? departments.filter(d => d.trim() !== "") : []
+        departments: hasDepartments ? departments.filter((d) => d.trim() !== "") : [],
       };
 
       const res = await signupBusiness(payload);
       localStorage.setItem("token", res.token);
-      alert("Business account created successfully!");
+      toast.success("OTP sent to your email. Please verify.");
 
       const fakeOtp = "1234";
       setGeneratedOtp(fakeOtp);
+      setOtpSentTime(Date.now());
+      setOtpExpired(false);
+      setResendTimer(30);
       setShowOtpModal(true);
     } catch (err) {
       const msg = err.response?.data?.message || "Signup failed.";
-      alert(msg);
+      toast.error(msg);
       setOtpError("Signup error. Please check inputs.");
     }
   };
 
   const handleOtpVerify = () => {
-    if (otp !== generatedOtp) {
-      setOtpError("Incorrect OTP. Please try again.");
+    if (otpExpired) {
+      setOtpError("OTP has expired. Request a new one.");
+      toast.error("OTP expired.");
       return;
     }
+    if (otp !== generatedOtp) {
+      setOtpError("Incorrect OTP. Please try again.");
+      toast.error("Incorrect OTP.");
+      return;
+    }
+    toast.success("OTP Verified!\nBusiness account created successfully!");
     setShowOtpModal(false);
-    navigate("/dashboard/business");
+    navigate("/login/business");
+  };
+
+  const handleResendOtp = () => {
+    const newOtp = "5678";
+    setGeneratedOtp(newOtp);
+    setOtp("");
+    setOtpExpired(false);
+    setOtpSentTime(Date.now());
+    setResendTimer(30);
+    toast.info("A new OTP has been sent.");
   };
 
   const inputClass = (field) =>
@@ -122,8 +170,6 @@ const SignupBusinessPage = () => {
         <Preloader />
       ) : (
         <div className="relative h-screen flex items-center justify-center overflow-hidden">
-          {/* Background Blobs and Floating Text here (same as original) */}
-
           <div
             className={`bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10 max-h-[80vh] ${
               hasDepartments ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : ""
@@ -141,7 +187,6 @@ const SignupBusinessPage = () => {
                 />
                 {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
               </div>
-
               <div>
                 <input
                   type="text"
@@ -152,7 +197,6 @@ const SignupBusinessPage = () => {
                 />
                 {errors.businessName && <p className="text-red-400 text-sm">{errors.businessName}</p>}
               </div>
-
               <div>
                 <input
                   type="password"
@@ -163,7 +207,6 @@ const SignupBusinessPage = () => {
                 />
                 {errors.password && <p className="text-red-400 text-sm">{errors.password}</p>}
               </div>
-
               <div>
                 <input
                   type="password"
@@ -174,7 +217,6 @@ const SignupBusinessPage = () => {
                 />
                 {errors.confirmPassword && <p className="text-red-400 text-sm">{errors.confirmPassword}</p>}
               </div>
-
               <div className="flex items-center space-x-2 text-sm text-white">
                 <input
                   type="checkbox"
@@ -184,7 +226,6 @@ const SignupBusinessPage = () => {
                 />
                 <label>Does your business have departments?</label>
               </div>
-
               {hasDepartments &&
                 departments.map((dept, idx) => (
                   <div key={idx} className="relative">
@@ -207,7 +248,6 @@ const SignupBusinessPage = () => {
                   </div>
                 ))}
               {errors.departments && <p className="text-red-400 text-sm">{errors.departments}</p>}
-
               {hasDepartments && (
                 <button
                   type="button"
@@ -217,17 +257,26 @@ const SignupBusinessPage = () => {
                   + Add another department
                 </button>
               )}
-
               <button
                 type="submit"
                 className="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition duration-300"
               >
                 Sign Up
               </button>
+            
+            {/* Back to Role Selection */}
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => navigate("/")}
+                className="text-sm text-white/70 hover:text-white transition underline"
+              >
+                ← Back to Role Selection
+              </button>
+            </div>
+        
             </form>
           </div>
-
-          {/* OTP Modal */}
+          
           {showOtpModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
               <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl w-[90%] sm:w-[350px] text-white relative">
@@ -235,8 +284,8 @@ const SignupBusinessPage = () => {
                   Verify Your Email
                 </h3>
                 <p className="text-sm text-center text-white/80 mb-4 px-2">
-                  We've sent a 4-digit OTP to{" "}
-                  <span className="font-medium">{email}</span>. Please enter it
+                  We've sent a 4-digit OTP to {" "}
+                  <span className="font-medium">{maskEmail(email)}</span>. Please enter it
                   below to complete your registration.
                 </p>
                 <input
@@ -250,23 +299,28 @@ const SignupBusinessPage = () => {
                   className="w-full px-4 py-3 text-center text-xl tracking-widest bg-white/20 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 mb-2"
                   placeholder="____"
                 />
-                {otpError && (
-                  <p className="text-red-400 text-sm text-center mb-2">
-                    {otpError}
-                  </p>
-                )}
-                <div className="flex justify-center gap-4 mt-4">
+               
+                <div className="flex flex-col gap-2 items-center justify-center mt-4">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowOtpModal(false)}
+                      className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleOtpVerify}
+                      className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
+                    >
+                      Verify
+                    </button>
+                  </div>
                   <button
-                    onClick={() => setShowOtpModal(false)}
-                    className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition"
+                    onClick={handleResendOtp}
+                    disabled={resendTimer > 0}
+                    className={`text-sm text-blue-300 underline disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleOtpVerify}
-                    className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
-                  >
-                    Verify
+                    {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
                   </button>
                 </div>
               </div>

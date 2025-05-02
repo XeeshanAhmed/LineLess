@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { signupUser } from "../services/authUserService";
 import { useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
+import { toast } from "react-toastify";
 
 const SignupUserPage = () => {
   const [showIntro, setShowIntro] = useState(true);
@@ -19,6 +20,9 @@ const SignupUserPage = () => {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpError, setOtpError] = useState("");
 
+  const [otpTimeout, setOtpTimeout] = useState(60);
+  const [resendDisabled, setResendDisabled] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,13 +30,30 @@ const SignupUserPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (showOtpModal && otpTimeout > 0) {
+      const interval = setInterval(() => {
+        setOtpTimeout((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (otpTimeout <= 0) {
+      setResendDisabled(false);
+    }
+  }, [showOtpModal, otpTimeout]);
+
+  const getMaskedEmail = (email) => {
+    const [user, domain] = email.split("@");
+    const maskedUser = user[0] + "*".repeat(user.length - 1);
+    return `${maskedUser}@${domain}`;
+  };
+
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
 
     setFieldError({});
     setSignupError("");
-
     const errors = {};
+
     if (!email || !email.includes("@")) {
       errors.email = "Please enter a valid email address.";
     }
@@ -41,6 +62,8 @@ const SignupUserPage = () => {
     }
     if (!password) {
       errors.password = "Password is required.";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters.";
     }
     if (!confirmPassword) {
       errors.confirmPassword = "Please confirm your password.";
@@ -62,22 +85,38 @@ const SignupUserPage = () => {
         role: "user"
       });
 
-      console.log(response.message);
-      const fakeOtp = "1234";
+      const fakeOtp = "1234"; // Simulating OTP generation
       setGeneratedOtp(fakeOtp);
       setShowOtpModal(true);
+      setOtpTimeout(60);
+      setResendDisabled(true);
+
+      toast.success("OTP sent to your email. Please verify.");
     } catch (error) {
-      setSignupError(error.response?.data?.message || "Signup failed.");
+      const msg = error.response?.data?.message || "Signup failed.";
+      setSignupError(msg);
     }
   };
 
   const handleOtpVerify = () => {
     if (otp === generatedOtp) {
       setShowOtpModal(false);
+      toast.success("OTP Verified! Account created successfully!");
       navigate("/login/user");
     } else {
       setOtpError("Incorrect OTP. Please try again.");
+      toast.error("Incorrect OTP. Please try again.");
     }
+  };
+
+  const handleResendOtp = () => {
+    const newOtp = "1234"; // Simulating new OTP generation
+    setGeneratedOtp(newOtp);
+    setOtp("");
+    setOtpError("");
+    setOtpTimeout(60);
+    setResendDisabled(true);
+    toast.success("New OTP has been sent!");
   };
 
   return (
@@ -178,7 +217,7 @@ const SignupUserPage = () => {
               <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl w-[90%] sm:w-[350px] text-white relative">
                 <h3 className="text-xl font-semibold mb-2 text-center">Verify Your Email</h3>
                 <p className="text-sm text-center text-white/80 mb-4 px-2">
-                  We've sent a 4-digit OTP to <span className="font-medium">{email}</span>. Please enter it below to complete your registration.
+                  We've sent a 4-digit OTP to <span className="font-medium">{getMaskedEmail(email)}</span>. Please enter it below.
                 </p>
                 <input
                   type="text"
@@ -189,6 +228,9 @@ const SignupUserPage = () => {
                   placeholder="____"
                 />
                 {otpError && <p className="text-red-400 text-sm text-center mb-2">{otpError}</p>}
+                <p className="text-sm text-center text-white/60 mt-1">
+                  {otpTimeout > 0 ? `OTP expires in ${otpTimeout}s` : "OTP expired."}
+                </p>
                 <div className="flex justify-center gap-4 mt-4">
                   <button
                     onClick={() => setShowOtpModal(false)}
@@ -199,8 +241,20 @@ const SignupUserPage = () => {
                   <button
                     onClick={handleOtpVerify}
                     className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
+                    disabled={otpTimeout <= 0}
                   >
                     Verify
+                  </button>
+                </div>
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={handleResendOtp}
+                    className={`text-sm underline ${
+                      resendDisabled ? "text-white/40 cursor-not-allowed" : "text-blue-300 hover:text-blue-400"
+                    }`}
+                    disabled={resendDisabled}
+                  >
+                    Resend OTP
                   </button>
                 </div>
               </div>
