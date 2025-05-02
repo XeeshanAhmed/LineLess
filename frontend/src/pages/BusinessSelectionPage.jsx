@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
 import { fetchBusinesses } from "../services/fetchBusinessService";
+import { useDispatch } from "react-redux"; 
+import { setBusiness,setDepartment } from "../store/slices/businessSlice";
+import { getDepartmentsByBusinessId } from "../services/departmentService";
 
 
 
@@ -10,12 +13,12 @@ const BusinessSelectionPage = () => {
   const [loading, setLoading] = useState(true);
   const [businesses, setBusinesses] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 1500); // Preloader duration
     return () => clearTimeout(timeout);
   }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,15 +39,12 @@ const BusinessSelectionPage = () => {
   const filteredBusinesses = businesses.filter((business) =>
     business.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const handleSelect = (business) => {
-    localStorage.setItem("selectedBusiness", JSON.stringify(business));
+  const handleSelect = async (business) => {
+    dispatch(setBusiness(business));
   
-    const isOnlyGeneral =
-      business.departments.length === 1 &&
-      business.departments[0].toLowerCase() === "general";
-  
-    if (!business.hasDepartments || isOnlyGeneral) {
-      localStorage.setItem("selectedDepartment", "General");
+    if (!business.hasDepartments) {
+      const departments= await getDepartmentsByBusinessId(business.businessId);
+      dispatch(setDepartment(departments[0]))
       navigate("/dashboard/user");
 
     } else {
