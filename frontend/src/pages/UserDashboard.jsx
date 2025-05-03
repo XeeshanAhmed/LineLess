@@ -9,37 +9,81 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
-import { getLatestTokenNumber } from "../services/tokenService";
-import { useSelector } from "react-redux";
+import { generateTokenForUser, getLatestTokenNumber } from "../services/tokenService";
+import { useSelector,useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/authUserService";
+import { resetSelection } from "../store/slices/businessSlice";
+import { clearUser } from "../store/slices/authUserSlice";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("generate");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
   const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
+  const isAuthenticated = useSelector((state) => state.authUser.isAuthenticated);
+  const user = useSelector((state) => state.authUser.user);
   const [loading, setLoading] = useState(true);
   const [latestToken, setLatestToken] = useState(null);
+  const [generatedToken, setGeneratedToken] = useState(null);
+  const [error, setError] = useState("");
+  const [isError, setisError] = useState(false)
+  const navigate=useNavigate();
+  const dispatch=useDispatch();
 
-  useEffect(() => {
-    const fetchLatestToken = async () => {
-      if (!selectedBusiness || !selectedDepartment) return;
-      setLoading(true);
-      try {
-        const token = await getLatestTokenNumber(
-          selectedBusiness.businessId,
-          selectedDepartment.departmentId
-        );
-        setLatestToken(token);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch latest token:", error);
-        setLatestToken("Error");
-        setLoading(false);
-      }
-    };
 
-    fetchLatestToken();
-  }, [selectedBusiness, selectedDepartment]);
+
+useEffect(() => {
+  const fetchLatestToken = async () => {
+    if(!isAuthenticated){
+      navigate('/login/user');
+    }
+    else if ((!selectedBusiness || !selectedDepartment) && isAuthenticated) {
+      navigate('/select-business')
+    }
+    setLoading(true);
+    try {
+      const token = await getLatestTokenNumber(
+        selectedBusiness.businessId,
+        selectedDepartment.departmentId
+      );
+      setLatestToken(token);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch latest token:", error);
+      setLatestToken("Error");
+      setLoading(false)
+    }
+  };
+
+  fetchLatestToken();
+}, [selectedBusiness, selectedDepartment,isAuthenticated]);
+const handleGenerateToken = async () => {
+  try {
+    if (!user || !selectedBusiness || !selectedDepartment) return;
+
+    const response = await generateTokenForUser(user.id,selectedBusiness.businessId,selectedDepartment.departmentId);
+
+    setGeneratedToken(response.token); 
+    setisError(false);
+  } catch (error) {
+    console.error("Token generation failed:", error);
+    setError(error.response?.data?.message || "Something went wrong, please try again.")
+    setGeneratedToken(error.response?.data?.tokenNumber)
+    setisError(true);
+  }
+};
+const handleLogout = async () => {
+  try {
+    await logoutUser();
+    dispatch(clearUser());
+    dispatch(resetSelection()); 
+    navigate("/");
+  } catch (error) {
+    console.error("Logout failed:", error);
+    console.log("kuch tu garbar hwi h")
+  }
+};
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -108,7 +152,9 @@ const UserDashboard = () => {
                 <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center">
                   <FaIdBadge className="mr-2" /> Profile Details
                 </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500">
+                <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500"
+                  onClick={handleLogout}
+                >
                   <FaSignOutAlt className="mr-2" /> Logout
                 </button>
               </div>
@@ -148,6 +194,35 @@ const UserDashboard = () => {
               >
                 ➕ Generate New Token
               </button>
+            </div>
+
+          )}
+
+          {generatedToken && !isError && (
+            <div className="max-w-md mx-auto mt-3 p-6 bg-white/10 border border-white/20 rounded-xl shadow-lg text-center animate-fadeIn">
+              <h3 className="text-xl font-semibold text-green-400 mb-2">
+                ✅ Token Generated Successfully!
+              </h3>
+              <div className="text-5xl font-bold text-green-300 mb-2 tracking-widest">
+                #{generatedToken.tokenNumber}
+              </div>
+              <p className="text-white/70 mb-1">
+                <strong>Business:</strong> {selectedBusiness?.businessName}
+              </p>
+              <p className="text-white/70 mb-3">
+                <strong>Department:</strong> {selectedDepartment?.departmentName}
+              </p>
+              <p className="text-sm text-white/40 italic">Please wait for your turn. Thank you!</p>
+            </div>
+          )}
+          {error && (
+            <div className="max-w-md mx-auto mt-3 p-6 bg-red-600/15 border border-red-600/20 rounded-xl shadow-lg text-center animate-fadeIn">
+              <h3 className="text-xl font-semibold text-red-400 mb-2">
+                ❌ Token Generation Failed!
+              </h3>
+              <p className="text-white/70 mb-3">{error}</p>
+              <p className="text-white/70 mb-3 text-xl font-semibold">Your token # {generatedToken}</p>
+              <p className="text-sm text-white/40 italic">Please try again or contact support.</p>
             </div>
           )}
 

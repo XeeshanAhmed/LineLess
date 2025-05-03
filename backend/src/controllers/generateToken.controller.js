@@ -25,7 +25,7 @@ const generateToken = async (req, res) => {
     const existingToken = await Token.findOne({
         userId,
         businessId,
-        givenDeptId,
+        departmentId:givenDeptId,
         status: 'pending'
       });
       

@@ -3,6 +3,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
 import { loginUser } from "../services/authUserService";
 import { loginBusiness } from "../services/authBusinessService";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/authUserSlice";
+import axios from "axios";
 
 const LoginPage = () => {
   const { role } = useParams();
@@ -12,6 +15,7 @@ const LoginPage = () => {
   const [fieldError, setFieldError] = useState({});
   const [loginError, setLoginError] = useState("");
   const [showForgotLink, setShowForgotLink] = useState(false);
+  const dispatch=useDispatch();
 
   const navigate = useNavigate();
 
@@ -48,6 +52,10 @@ const LoginPage = () => {
       localStorage.setItem("token", res.token);
 
       if (res.role === "user") {
+        const authres = await axios.get('http://localhost:5000/api/userAuth/me', {
+          withCredentials: true, 
+        });
+        dispatch(setUser(authres.data.user));
         navigate("/select-business");
       } else if (res.role === "business") {
         const departments = res.departments || [];

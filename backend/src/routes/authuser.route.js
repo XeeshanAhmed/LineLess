@@ -1,11 +1,12 @@
 import express from "express";
-import { login, signUp } from "../controllers/authUser.controller.js";
+
+
 import sendEmail from "../utils/sendEmail.js";
 
-const router = express.Router();
+import { login, signUp,getLoggedInUser,logout } from "../controllers/authUser.controller.js";
 
-router.post("/signup", signUp);
-router.post("/login", login);
+
+const router = express.Router();
 
 
 // Route: POST /api/userAuth/send-otp
@@ -32,5 +33,10 @@ router.post("/send-otp", async (req, res) => {
     res.status(500).json({ message: "Failed to send OTP", error: error.message });
   }
 });
+
+router.post('/signup',signUp);
+router.post('/login',login);
+router.get('/me', getLoggedInUser);
+router.post('/logout', logout);
 
 export default router;
