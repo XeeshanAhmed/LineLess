@@ -3,6 +3,7 @@ import Preloader from "../components/Preloader";
 import { useNavigate } from "react-router-dom";
 import { signupBusiness } from "../services/authBusinessService";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const SignupBusinessPage = () => {
   const [showIntro, setShowIntro] = useState(true);
@@ -104,8 +105,36 @@ const SignupBusinessPage = () => {
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateInputs()) return;
+
+    try {
+      // Send OTP first
+      const otpRes = await axios.post("http://localhost:5000/api/userAuth/send-otp", { email });
+      const otpCode = otpRes.data.otp; // For dev purposes, in production, we don’t expose this
+
+      setGeneratedOtp(otpCode);
+      setOtpSentTime(Date.now());
+      setOtpExpired(false);
+      setResendTimer(30);
+      setShowOtpModal(true);
+      toast.success("OTP sent to your email. Please verify.");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to send OTP.";
+      toast.error(msg);
+    }
+  };
+
+  const handleOtpVerify = async () => {
+    if (otpExpired) {
+      setOtpError("OTP has expired. Request a new one.");
+      toast.error("OTP expired.");
+      return;
+    }
+    if (otp !== generatedOtp) {
+      setOtpError("Incorrect OTP. Please try again.");
+      toast.error("Incorrect OTP.");
+      return;
+    }
 
     try {
       const payload = {
@@ -118,45 +147,26 @@ const SignupBusinessPage = () => {
 
       const res = await signupBusiness(payload);
       localStorage.setItem("token", res.token);
-      toast.success("OTP sent to your email. Please verify.");
-
-      const fakeOtp = "1234";
-      setGeneratedOtp(fakeOtp);
-      setOtpSentTime(Date.now());
-      setOtpExpired(false);
-      setResendTimer(30);
-      setShowOtpModal(true);
+      toast.success("OTP Verified! Business account created.");
+      setShowOtpModal(false);
+      navigate("/login/business");
     } catch (err) {
-      const msg = err.response?.data?.message || "Signup failed.";
-      toast.error(msg);
-      setOtpError("Signup error. Please check inputs.");
+      toast.error("Signup failed after OTP. Please try again.");
     }
   };
 
-  const handleOtpVerify = () => {
-    if (otpExpired) {
-      setOtpError("OTP has expired. Request a new one.");
-      toast.error("OTP expired.");
-      return;
+  const handleResendOtp = async () => {
+    try {
+      const otpRes = await axios.post("/api/userAuth/send-otp", { email });
+      setGeneratedOtp(otpRes.data.otp);
+      setOtp("");
+      setOtpExpired(false);
+      setOtpSentTime(Date.now());
+      setResendTimer(30);
+      toast.info("A new OTP has been sent.");
+    } catch (err) {
+      toast.error("Failed to resend OTP.");
     }
-    if (otp !== generatedOtp) {
-      setOtpError("Incorrect OTP. Please try again.");
-      toast.error("Incorrect OTP.");
-      return;
-    }
-    toast.success("OTP Verified!\nBusiness account created successfully!");
-    setShowOtpModal(false);
-    navigate("/login/business");
-  };
-
-  const handleResendOtp = () => {
-    const newOtp = "5678";
-    setGeneratedOtp(newOtp);
-    setOtp("");
-    setOtpExpired(false);
-    setOtpSentTime(Date.now());
-    setResendTimer(30);
-    toast.info("A new OTP has been sent.");
   };
 
   const inputClass = (field) =>
@@ -170,6 +180,21 @@ const SignupBusinessPage = () => {
         <Preloader />
       ) : (
         <div className="relative h-screen flex items-center justify-center overflow-hidden">
+           {/* Background Blobs */}
+           <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-purple-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob"></div>
+            <div className="absolute top-1/3 left-1/2 w-72 h-72 bg-pink-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-2000"></div>
+            <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-4000"></div>
+          </div>
+
+          {/* Floating Slogans */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="absolute top-[15%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">LineLess</div>
+            <div className="absolute top-[10%] right-[5%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">Say goodbye to waiting lines</div>
+            <div className="absolute bottom-[20%] left-[15%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-4000">Smart Tokening</div>
+            <div className="absolute bottom-[10%] right-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text animation-delay-6000">No More Queues</div>
+          </div>
+
           <div
             className={`bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10 max-h-[80vh] ${
               hasDepartments ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : ""
@@ -249,11 +274,7 @@ const SignupBusinessPage = () => {
                 ))}
               {errors.departments && <p className="text-red-400 text-sm">{errors.departments}</p>}
               {hasDepartments && (
-                <button
-                  type="button"
-                  onClick={addDepartmentField}
-                  className="text-sm text-blue-300 underline"
-                >
+                <button type="button" onClick={addDepartmentField} className="text-sm text-blue-300 underline">
                   + Add another department
                 </button>
               )}
@@ -263,30 +284,24 @@ const SignupBusinessPage = () => {
               >
                 Sign Up
               </button>
-            
-            {/* Back to Role Selection */}
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => navigate("/")}
-                className="text-sm text-white/70 hover:text-white transition underline"
-              >
-                ← Back to Role Selection
-              </button>
-            </div>
-        
+
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => navigate("/")}
+                  className="text-sm text-white/70 hover:text-white transition underline"
+                >
+                  ← Back to Role Selection
+                </button>
+              </div>
             </form>
           </div>
-          
+
           {showOtpModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
               <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl w-[90%] sm:w-[350px] text-white relative">
-                <h3 className="text-xl font-semibold mb-2 text-center">
-                  Verify Your Email
-                </h3>
+                <h3 className="text-xl font-semibold mb-2 text-center">Verify Your Email</h3>
                 <p className="text-sm text-center text-white/80 mb-4 px-2">
-                  We've sent a 4-digit OTP to {" "}
-                  <span className="font-medium">{maskEmail(email)}</span>. Please enter it
-                  below to complete your registration.
+                  We've sent a 4-digit OTP to <span className="font-medium">{maskEmail(email)}</span>.
                 </p>
                 <input
                   type="text"
@@ -299,7 +314,7 @@ const SignupBusinessPage = () => {
                   className="w-full px-4 py-3 text-center text-xl tracking-widest bg-white/20 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 mb-2"
                   placeholder="____"
                 />
-               
+                {otpError && <p className="text-red-400 text-sm text-center mb-2">{otpError}</p>}
                 <div className="flex flex-col gap-2 items-center justify-center mt-4">
                   <div className="flex gap-3">
                     <button
