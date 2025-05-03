@@ -189,7 +189,7 @@ const handleLogout = async () => {
               </div>
 
               <button
-                // onClick={handleGenerateToken}
+                 onClick={handleGenerateToken}
                 className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-emerald-500 hover:to-green-400 text-white text-lg font-semibold py-3 rounded-xl transition-transform hover:scale-105 shadow-xl"
               >
                 ➕ Generate New Token

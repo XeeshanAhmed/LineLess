@@ -23,7 +23,7 @@ router.post("/send-otp", async (req, res) => {
     await sendEmail(
       email,
       "Your LineLess OTP Code",
-      `Your OTP code is: ${otp}. It will expire in 5 minutes.`
+      `JazakAllah Kahir for Registering to LineLess \nYour OTP code is: ${otp}. It will expire in 5 minutes.`
     );
 
     // ⚠️ For production, do not expose the OTP
