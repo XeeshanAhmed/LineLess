@@ -13,6 +13,8 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from './store/slices/authUserSlice';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
@@ -33,6 +35,7 @@ function App() {
     fetchUser();
   }, []);
   return (
+    <>
     <Routes>
       <Route path="/" element={<RoleSelectionPage />} />
       <Route path="/login/:role" element={<LoginPage />} />
@@ -45,6 +48,8 @@ function App() {
       <Route path="/dashboard/business" element={<BusinessDashboard />} />
       <Route path="/forgot-password/:role/:username" element={<ForgotPasswordPage />} />
     </Routes>
+    <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 }
 

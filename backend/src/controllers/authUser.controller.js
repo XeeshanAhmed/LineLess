@@ -27,7 +27,8 @@ const signUp=async (req,res)=>{
         })
     } catch (error) {
         res.status(400).json({
-            message:error.message
+            message: "Email already exists",
+            error: true
         })
     }
 }
