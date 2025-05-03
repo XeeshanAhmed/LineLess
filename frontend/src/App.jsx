@@ -9,8 +9,29 @@ import BusinessDepartmentSelectionPage from "./pages/BusinessDepartmentSelection
 import UserDepartmentSelectionPage from "./pages/UserDepartmentSelectionPage";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import { useEffect } from 'react';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setUser, clearUser } from './store/slices/authUserSlice';
 
 function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/userAuth/me', { withCredentials: true });
+        dispatch(setUser(res.data.user));
+        console.log("res",res);
+        console.log("data",res.data);
+        console.log("user fetched from token::",res.data.user);
+      } catch (err) {
+        dispatch(clearUser());
+        console.log("no use fetched from token::")
+      }
+    };
+
+    fetchUser();
+  }, []);
   return (
     <Routes>
       <Route path="/" element={<RoleSelectionPage />} />
