@@ -33,15 +33,14 @@ const UserDashboard = () => {
   const [isError, setisError] = useState(false)
   const navigate=useNavigate();
   const dispatch=useDispatch();
-  
 
 
 useEffect(() => {
   const fetchLatestToken = async () => {
     if(!isAuthenticated){
-      navigate('/login/user')
+      navigate('/login/user');
     }
-    if ((!selectedBusiness || !selectedDepartment)) {
+    else if ((!selectedBusiness || !selectedDepartment) && isAuthenticated) {
       navigate('/select-business')
     }
     setLoading(true);
@@ -60,7 +59,7 @@ useEffect(() => {
   };
 
   fetchLatestToken();
-}, [selectedBusiness, selectedDepartment]);
+}, [selectedBusiness, selectedDepartment,isAuthenticated]);
 const handleGenerateToken = async () => {
   try {
     if (!user || !selectedBusiness || !selectedDepartment) return;

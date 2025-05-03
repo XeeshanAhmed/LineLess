@@ -52,10 +52,10 @@ const LoginPage = () => {
       localStorage.setItem("token", res.token);
 
       if (res.role === "user") {
-        // const authres = await axios.get('http://localhost:5000/api/userAuth/me', {
-        //   withCredentials: true, 
-        // });
-        // dispatch(setUser(authres.data.user));
+        const authres = await axios.get('http://localhost:5000/api/userAuth/me', {
+          withCredentials: true, 
+        });
+        dispatch(setUser(authres.data.user));
         navigate("/select-business");
       } else if (res.role === "business") {
         const departments = res.departments || [];
