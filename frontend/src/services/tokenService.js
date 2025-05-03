@@ -6,3 +6,9 @@ export const getLatestTokenNumber = async (businessId, departmentId) => {
   const res = await axios.get(`${BASE_URL}/getLatestToken/${businessId}/${departmentId}`);
   return res.data.latestTokenNumber;
 };
+
+export const generateTokenForUser = async (userId, businessId, departmentId) => {
+    const response = await axios.post(`${BASE_URL}/generate`,{ userId, businessId, departmentId },{ withCredentials: true }
+    );
+    return response.data;
+  };
