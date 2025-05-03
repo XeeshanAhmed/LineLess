@@ -9,8 +9,9 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
-import { getLatestTokenNumber } from "../services/tokenService";
+import { generateTokenForUser, getLatestTokenNumber } from "../services/tokenService";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 
 const UserDashboard = () => {
@@ -20,12 +21,20 @@ const UserDashboard = () => {
   // const [selectedDepartment, setSelectedDepartment] = useState(null);
   const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
   const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
+  const user = useSelector((state) => state.authUser.user);
   const [loading, setLoading] = useState(true);
   const [latestToken, setLatestToken] = useState(null);
+  const [generatedToken, setGeneratedToken] = useState(null);
+  const [error, setError] = useState("");
+  const [isError, setisError] = useState(false)
+  const navigate=useNavigate();
+
 
 useEffect(() => {
   const fetchLatestToken = async () => {
-    if (!selectedBusiness || !selectedDepartment) return;
+    if (!selectedBusiness || !selectedDepartment) {
+      navigate('/select-business')
+    }
     setLoading(true);
     try {
       const token = await getLatestTokenNumber(
@@ -43,34 +52,21 @@ useEffect(() => {
 
   fetchLatestToken();
 }, [selectedBusiness, selectedDepartment]);
+const handleGenerateToken = async () => {
+  try {
+    if (!user || !selectedBusiness || !selectedDepartment) return;
 
+    const response = await generateTokenForUser(user.id,selectedBusiness.businessId,selectedDepartment.departmentId);
 
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => setLoading(false), 1500);
-
-  //   const business = JSON.parse(localStorage.getItem("selectedBusiness"));
-  //   const department = localStorage.getItem("selectedDepartment");
-
-  //   if (business) {
-  //     setSelectedBusiness(business);
-    
-  //     const departments = business.departments || [];
-    
-  //     const isOnlyGeneral =
-  //       departments.length === 1 && departments[0].toLowerCase() === "general";
-    
-  //     if (isOnlyGeneral) {
-  //       localStorage.setItem("selectedDepartment", "General");
-  //       setSelectedDepartment("General");
-  //     } else {
-  //       const savedDept = localStorage.getItem("selectedDepartment");
-  //       setSelectedDepartment(savedDept);
-  //     }
-  //   }
-    
-
-  //   return () => clearTimeout(timeout);
-  // }, []);
+    setGeneratedToken(response.token); 
+    setisError(false);
+  } catch (error) {
+    console.error("Token generation failed:", error);
+    setError(error.response?.data?.message || "Something went wrong, please try again.")
+    setGeneratedToken(error.response?.data?.tokenNumber)
+    setisError(true);
+  }
+};
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -186,12 +182,39 @@ useEffect(() => {
             </p>
         
             <button
-              // onClick={handleGenerateToken}
+              onClick={handleGenerateToken}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow-md transition-all"
             >
               🚀 Generate New Token
             </button>
           </div>
+          )}
+          {generatedToken && !isError && (
+            <div className="max-w-md mx-auto mt-3 p-6 bg-white/10 border border-white/20 rounded-xl shadow-lg text-center animate-fadeIn">
+              <h3 className="text-xl font-semibold text-green-400 mb-2">
+                ✅ Token Generated Successfully!
+              </h3>
+              <div className="text-5xl font-bold text-green-300 mb-2 tracking-widest">
+                #{generatedToken.tokenNumber}
+              </div>
+              <p className="text-white/70 mb-1">
+                <strong>Business:</strong> {selectedBusiness?.businessName}
+              </p>
+              <p className="text-white/70 mb-3">
+                <strong>Department:</strong> {selectedDepartment?.departmentName}
+              </p>
+              <p className="text-sm text-white/40 italic">Please wait for your turn. Thank you!</p>
+            </div>
+          )}
+          {error && (
+            <div className="max-w-md mx-auto mt-3 p-6 bg-red-600/15 border border-red-600/20 rounded-xl shadow-lg text-center animate-fadeIn">
+              <h3 className="text-xl font-semibold text-red-400 mb-2">
+                ❌ Token Generation Failed!
+              </h3>
+              <p className="text-white/70 mb-3">{error}</p>
+              <p className="text-white/70 mb-3 text-xl font-semibold">Your token # {generatedToken}</p>
+              <p className="text-sm text-white/40 italic">Please try again or contact support.</p>
+            </div>
           )}
           {activeTab === "snapshot" && (
             <h2 className="text-2xl font-bold">📊 Live Business Snapshot</h2>
