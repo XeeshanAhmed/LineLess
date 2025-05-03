@@ -10,8 +10,11 @@ import {
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
 import { generateTokenForUser, getLatestTokenNumber } from "../services/tokenService";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/authUserService";
+import { resetSelection } from "../store/slices/businessSlice";
+import { clearUser } from "../store/slices/authUserSlice";
 
 
 const UserDashboard = () => {
@@ -21,6 +24,7 @@ const UserDashboard = () => {
   // const [selectedDepartment, setSelectedDepartment] = useState(null);
   const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
   const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
+  const isAuthenticated = useSelector((state) => state.authUser.isAuthenticated);
   const user = useSelector((state) => state.authUser.user);
   const [loading, setLoading] = useState(true);
   const [latestToken, setLatestToken] = useState(null);
@@ -28,11 +32,16 @@ const UserDashboard = () => {
   const [error, setError] = useState("");
   const [isError, setisError] = useState(false)
   const navigate=useNavigate();
+  const dispatch=useDispatch();
+  
 
 
 useEffect(() => {
   const fetchLatestToken = async () => {
-    if (!selectedBusiness || !selectedDepartment) {
+    if(!isAuthenticated){
+      navigate('/login/user')
+    }
+    if ((!selectedBusiness || !selectedDepartment)) {
       navigate('/select-business')
     }
     setLoading(true);
@@ -67,7 +76,17 @@ const handleGenerateToken = async () => {
     setisError(true);
   }
 };
-
+const handleLogout = async () => {
+  try {
+    await logoutUser();
+    dispatch(clearUser());
+    dispatch(resetSelection()); 
+    navigate("/");
+  } catch (error) {
+    console.error("Logout failed:", error);
+    console.log("kuch tu garbar hwi h")
+  }
+};
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
@@ -157,7 +176,9 @@ const handleGenerateToken = async () => {
                 <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center">
                   <FaIdBadge className="mr-2" /> Profile Details
                 </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500">
+                <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500"
+                  onClick={handleLogout}
+                >
                   <FaSignOutAlt className="mr-2" /> Logout
                 </button>
               </div>
