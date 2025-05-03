@@ -77,6 +77,15 @@ const getLoggedInUser = (req, res) => {
     }
   };
   
+  const logout = (req, res) => {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+    });
+    res.status(200).json({ message: "Logged out successfully" });
+  };
+  
   
 
-export {login,signUp,getLoggedInUser}
+export {login,signUp,getLoggedInUser,logout}
