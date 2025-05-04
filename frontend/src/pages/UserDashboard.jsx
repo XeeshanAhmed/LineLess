@@ -70,7 +70,11 @@
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [feedbackList, setFeedbackList] = useState([]);
-    
+    const [comment, setComment] = useState("");
+    const [rating, setRating] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+
     useEffect(() => {
       if (activeTab === "feedback") {
         const loadFeedback = async () => {
@@ -80,7 +84,32 @@
         loadFeedback();
       }
     }, [activeTab]);
-
+    
+    const handleSubmitFeedback = async () => {
+      if (!comment.trim() || rating === 0) {
+        alert("Please provide a comment and rating!");
+        return;
+      }
+    
+      setIsSubmitting(true);
+    
+      const newFeedback = {
+        id: Date.now(), // Replace with backend ID in real app
+        user: "You", // Or fetched from auth
+        comment,
+        rating,
+        timestamp: new Date().toLocaleString(),
+      };
+    
+      // Simulate API call
+      setTimeout(() => {
+        setFeedbackList((prev) => [newFeedback, ...prev]);
+        setComment("");
+        setRating(0);
+        setIsSubmitting(false);
+      }, 1000);
+    };
+    
   ///for the snapshot data
   const [snapshotData, setSnapshotData] = useState(null);
 
@@ -231,22 +260,22 @@
           </div>
 
           {/* Main View */}
-          <div className="mt-8 flex justify-center flex-wrap gap-6">
-            {activeTab === "generate" && (
-              <>
-                <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl animate-fadeUp">
-                  <h2 className="text-3xl font-extrabold mb-6 text-center tracking-wide">
+                <div className="mt-6 flex justify-center flex-wrap gap-6">
+                  {activeTab === "generate" && (
+                    <>
+                    <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl animate-fadeUp relative -mt-12 z-10">
+                    <h2 className="text-3xl font-extrabold mb-6 text-center tracking-wide">
                     🎟️ Generate Token
-                  </h2>
+                    </h2>
 
-                  <div className="bg-black/30 rounded-xl p-10 mb-8 text-center shadow-inner border border-white/10">
+                    <div className="bg-black/30 rounded-xl p-10 mb-8 text-center shadow-inner border border-white/10">
                     <p className="text-sm text-white/60 uppercase mb-2 tracking-widest">Token Number</p>
                     <p className="text-6xl font-bold text-emerald-400 animate-pulse">
                       {latestToken !== null ? `#${latestToken}` : "----"}
                     </p>
-                  </div>
+                    </div>
 
-                  <div className="flex justify-between text-white/80 text-sm mb-6">
+                    <div className="flex justify-between text-white/80 text-sm mb-6">
                     <div>
                       <p className="text-xs font-semibold">Business</p>
                       <p>{selectedBusiness?.businessName || "N/A"}</p>
@@ -255,18 +284,18 @@
                       <p className="text-xs font-semibold">Department</p>
                       <p>{selectedDepartment?.departmentName || "N/A"}</p>
                     </div>
-                  </div>
+                    </div>
 
-                  <button
+                    <button
                     onClick={handleGenerateToken}
                     className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-emerald-500 hover:to-green-400 text-white text-lg font-semibold py-3 rounded-xl transition-transform hover:scale-105 shadow-xl"
-                  >
+                    >
                     ➕ Generate New Token
-                  </button>
-                </div>
+                    </button>
+                    </div>
 
-                {generatedToken && !isError && (
-                  <div className="max-w-md mx-auto mt-3 p-6 bg-white/10 border border-white/20 rounded-xl shadow-lg text-center animate-fadeIn">
+                    {generatedToken && !isError && (
+                    <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl animate-fadeUp">
                     <h3 className="text-xl font-semibold text-green-400 mb-2">
                       ✅ Token Generated Successfully!
                     </h3>
@@ -280,57 +309,57 @@
                       <strong>Department:</strong> {selectedDepartment?.departmentName}
                     </p>
                     <p className="text-sm text-white/40 italic">Please wait for your turn. Thank you!</p>
-                  </div>
-                )}
+                    </div>
+                    )}
 
-                {error && (
-                  <div className="max-w-md mx-auto mt-3 p-6 bg-red-600/15 border border-red-600/20 rounded-xl shadow-lg text-center animate-fadeIn">
+                    {error && (
+                    <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-red-600/15 border border-red-600/20 rounded-xl shadow-lg text-center animate-fadeIn">
                     <h3 className="text-xl font-semibold text-red-400 mb-2">
                       ❌ Token Generation Failed!
                     </h3>
                     <p className="text-white/70 mb-3">{error}</p>
                     <p className="text-white/70 mb-3 text-xl font-semibold">Your token # {generatedToken}</p>
                     <p className="text-sm text-white/40 italic">Please try again or contact support.</p>
-                  </div>
-                )}
-              </>
-            )}
+                    </div>
+                    )}
+                    </>
+                  )}
 
 
-  {activeTab === "snapshot" && snapshotData && (
-              <div className="w-full max-w-xl bg-gray-800 p-6 rounded-xl shadow-2xl">
-                <h2 className="text-3xl font-bold text-center text-cyan-300 mb-6">
-                  📊 Live Business Snapshot
-                </h2>
+                  {activeTab === "snapshot" && snapshotData && (
+                  <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-gray-800 p-6 rounded-xl shadow-2xl">
+                    <h2 className="text-3xl font-bold text-center text-cyan-300 mb-6">
+                    📊 Live Business Snapshot
+                    </h2>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="p-4 rounded-xl bg-green-600 text-white text-center">
+                    <div className="grid grid-cols-2 gap-6">
+                    <div className="p-4 rounded-xl bg-green-600 text-white text-center">
                     <p className="text-sm">Current Token</p>
                     <p className="text-4xl font-bold">#{snapshotData.currentToken}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-blue-600 text-white text-center">
+                    </div>
+                    <div className="p-4 rounded-xl bg-blue-600 text-white text-center">
                     <p className="text-sm">Next Token</p>
                     <p className="text-4xl font-bold">#{snapshotData.nextToken}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-purple-600 text-white text-center">
+                    </div>
+                    <div className="p-4 rounded-xl bg-purple-600 text-white text-center">
                     <p className="text-sm">Est. Time</p>
                     <p className="text-3xl font-bold">{snapshotData.estimatedServiceTime} min</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-yellow-600 text-white text-center">
+                    </div>
+                    <div className="p-4 rounded-xl bg-yellow-600 text-white text-center">
                     <p className="text-sm">Tokens Before You</p>
                     <p className="text-4xl font-bold">{snapshotData.tokensBeforeYou}</p>
-                  </div>
-                </div>
-              </div>
-            )}
+                    </div>
+                    </div>
+                    </div>
+                  )}
 
-            {/* {activeTab === "snapshot" && (
-              <div className="w-full grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {["Registration", "Customer Care", "Billing"].map((dept, index) => (
-                  <div
+                  {/* {activeTab === "snapshot" && (
+                    <div className="w-full grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {["Registration", "Customer Care", "Billing"].map((dept, index) => (
+                    <div
                     key={index}
                     className="p-6 rounded-xl bg-white/10 border border-white/20 shadow-md backdrop-blur-md"
-                  >
+                    >
                     <h3 className="text-xl font-bold text-cyan-300 mb-2">{dept}</h3>
                     <p className="text-white/80">
                       <strong>Now Serving:</strong> #{Math.floor(Math.random() * 90) + 1}
@@ -341,10 +370,10 @@
                     <div className="mt-2 text-sm text-white/50 italic">
                       Avg Wait: {Math.floor(Math.random() * 8) + 2} mins
                     </div>
+                    </div>
+                  ))}
                   </div>
-                ))}
-              </div>
-            )} */}
+                )} */}
 
             {/* 💬 Feedback Tab */}
             {activeTab === "feedback" && (
