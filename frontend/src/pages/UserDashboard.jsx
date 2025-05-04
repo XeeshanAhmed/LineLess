@@ -16,7 +16,7 @@
   import { resetSelection } from "../store/slices/businessSlice";
   import { clearUser } from "../store/slices/authUserSlice";
   import { FaStar } from "react-icons/fa";
-
+  import { Dialog } from "@headlessui/react";
 
   const fetchDemoFeedback = () => {
     const demoFeedback = [
@@ -73,7 +73,38 @@
     const [comment, setComment] = useState("");
     const [rating, setRating] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
+    const [tokensOpen, setTokensOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showSavedMessage, setShowSavedMessage] = useState(false);
 
+    const [profile, setProfile] = useState({
+      email: "hassnainidrees@gmail.com",
+      username: "Hassnain",
+      password: "123123",
+      confirmPassword: "",
+    });
+  
+    const [tokens] = useState([
+      { id: 1, business: "Bank of America", token: "A12", time: "10:30 AM" },
+      { id: 2, business: "DMV", token: "B45", time: "11:00 AM" },
+      { id: 3, business: "ClinicPlus", token: "C03", time: "12:15 PM" },
+    ]);
+  
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setProfile((prev) => ({ ...prev, [name]: value }));
+      if (name === "password") setShowConfirmPassword(value !== "");
+    };
+  
+    const saveProfile = () => {
+      setIsEditing(false);
+      setShowConfirmPassword(false);
+      setShowSavedMessage(true);
+      setTimeout(() => setShowSavedMessage(false), 3000);
+    };
+  
 
     useEffect(() => {
       if (activeTab === "feedback") {
@@ -240,22 +271,123 @@
                 <span className="hidden sm:inline">Profile</span>
               </button>
 
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-xl rounded-xl shadow-lg py-2 text-sm z-50">
-                  <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center">
-                    <FaTicketAlt className="mr-2" /> Active Tokens
-                  </button>
-                  <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center">
-                    <FaIdBadge className="mr-2" /> Profile Details
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500"
-                    onClick={handleLogout}
-                  >
-                    <FaSignOutAlt className="mr-2" /> Logout
-                  </button>
-                </div>
-              )}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-xl rounded-xl shadow-lg py-2 text-sm z-50">
+                <button
+                  onClick={() => setTokensOpen(true)}
+                  className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center"
+                >
+                  <FaTicketAlt className="mr-2" /> Active Tokens
+                </button>
+                <button
+                  onClick={() => setProfileOpen(true)}
+                  className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center"
+                >
+                  <FaIdBadge className="mr-2" /> Profile Details
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500"
+                >
+                  <FaSignOutAlt className="mr-2" /> Logout
+                </button>
+              </div>
+            )}
+
+            {/* Profile Dialog */}
+            <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-screen p-4">
+                <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
+                  <Dialog.Title className="text-white text-2xl font-bold mb-4">Profile Details</Dialog.Title>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-white/70">Email</label>
+                      <input
+                        type="email"
+                        value={profile.email}
+                        disabled
+                        className="w-full p-2 rounded bg-white/20 text-white cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white/70">Username</label>
+                      <input
+                        name="username"
+                        value={profile.username}
+                        disabled={!isEditing}
+                        onChange={handleInputChange}
+                        className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white/70">Password</label>
+                      <input
+                        name="password"
+                        type="password"
+                        value={profile.password}
+                        disabled={!isEditing}
+                        onChange={handleInputChange}
+                        className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                      />
+                    </div>
+                    {showConfirmPassword && (
+                      <div>
+                        <label className="text-white/70">Confirm Password</label>
+                        <input
+                          name="confirmPassword"
+                          type="password"
+                          value={profile.confirmPassword}
+                          onChange={handleInputChange}
+                          className="w-full p-2 rounded bg-white/20 text-white"
+                        />
+                      </div>
+                    )}
+                    {isEditing ? (
+                      <button
+                        onClick={saveProfile}
+                        className="w-full py-2 bg-green-500 hover:bg-green-600 transition rounded text-white font-semibold"
+                      >
+                        Save
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="w-full py-2 bg-blue-500 hover:bg-blue-600 transition rounded text-white font-semibold"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {showSavedMessage && (
+                      <p className="text-green-400 text-sm text-center mt-2 animate-fadeIn">✅ Changes saved!</p>
+                    )}
+                  </div>
+                </Dialog.Panel>
+              </div>
+            </Dialog>
+
+            {/* Active Tokens Dialog */}
+            <Dialog open={tokensOpen} onClose={() => setTokensOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-screen p-4">
+                <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-xl">
+                  <Dialog.Title className="text-white text-2xl font-bold mb-6">Your Active Tokens</Dialog.Title>
+                  <div className="space-y-4">
+                    {tokens.map((token) => (
+                      <div
+                        key={token.id}
+                        className="bg-white/20 text-white p-4 rounded-xl shadow flex justify-between items-center"
+                      >
+                        <div>
+                          <p className="font-bold">{token.business}</p>
+                          <p className="text-sm text-white/70">Token: {token.token}</p>
+                        </div>
+                        <p className="text-right text-sm">{token.time}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Dialog.Panel>
+              </div>
+            </Dialog>
+
             </div>
           </div>
 
