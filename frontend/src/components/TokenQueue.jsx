@@ -24,7 +24,7 @@ const TokenQueue = () => {
     setLoading(true);
     try {
       const res = await getTokenQueue(businessId, departmentId);
-      setQueue(res.queue);
+      setQueue(res.queue || []);
     } catch (error) {
       console.error("Failed to fetch token queue", error);
     } finally {
@@ -35,69 +35,82 @@ const TokenQueue = () => {
   const handleStatusChange = async (tokenId, status) => {
     try {
       await updateTokenStatus(tokenId, status);
-      fetchQueue(); // Refresh the queue
+      setQueue((prevQueue) => prevQueue.filter((token) => token._id !== tokenId));
     } catch (error) {
       console.error("Failed to update token status", error);
     }
   };
 
   if (loading) {
-    return <p className="text-center text-white">Loading queue...</p>;
+    return (
+      <div className="text-center text-white py-20">
+        <p className="text-xl">Loading queue...</p>
+      </div>
+    );
   }
 
+  if (!queue.length) {
+    return (
+      <div className="p-10 bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-white/10 rounded-3xl shadow-2xl text-center text-white/80">
+        <p className="text-3xl font-medium"> No tokens in queue!</p>
+      </div>
+    );
+  }
+
+  const currentToken = queue[0];
+  const waitingTokens = queue.slice(1);
+
   return (
-    <div className="max-w-3xl mx-auto mt-10 bg-white/10 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-white/20">
-      <h1 className="text-3xl font-bold text-white mb-6 text-center">Token Queue</h1>
+    <div className="max-w-5xl mx-auto space-y-12">
+      {/* Current Token */}
+      <div className="bg-gradient-to-br from-[#1f1f25] to-[#1a1a1f] border border-white/10 rounded-3xl p-10 text-center shadow-xl">
+        <p className="text-white/60 text-base uppercase tracking-widest">Now Serving</p>
+        <h1 className="text-7xl font-bold text-cyan-400 mt-4 drop-shadow-lg">
+          #{currentToken.tokenNumber}
+        </h1>
+        <div className="flex justify-center items-center gap-3 mt-6 text-white/80 text-lg">
+          <FaUserCircle className="text-white/60 text-2xl" />
+          <span className="font-medium">{currentToken.userId?.username || "Unknown"}</span>
+        </div>
 
-      {queue.length === 0 ? (
-        <p className="text-center text-white">No tokens in queue.</p>
-      ) : (
-        <>
-          {/* Current Token */}
-          <div className="bg-white rounded-xl p-6 mb-6 shadow-md text-center">
-            <h2 className="text-4xl font-bold text-blue-600 mb-2">
-              Current Token: {queue[0].tokenNumber}
-            </h2>
-            <p className="text-gray-700 font-medium mb-4">
-              User: {queue[0]?.userId?.username || "Unknown"}
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => handleStatusChange(queue[0]._id, "completed")}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
-              >
-                Serviced
-              </button>
-              <button
-                onClick={() => handleStatusChange(queue[0]._id, "cancelled")}
-                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
-              >
-                Cancelled
-              </button>
-            </div>
-          </div>
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10">
+          <button
+            onClick={() => handleStatusChange(currentToken._id, "completed")}
+            className="px-8 py-3 rounded-full bg-green-500/20 hover:bg-green-400/20 text-green-300 border border-green-300/30 backdrop-blur transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+          >
+            ✅ Mark as Served
+          </button>
+          <button
+            onClick={() => handleStatusChange(currentToken._id, "cancelled")}
+            className="px-8 py-3 rounded-full bg-red-500/20 hover:bg-red-400/20 text-red-300 border border-red-300/30 backdrop-blur transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+          >
+            ⏭ Skip Token
+          </button>
+        </div>
+      </div>
 
-          {/* Remaining Tokens */}
-          <h3 className="text-xl text-white font-semibold mb-2">Waiting Queue</h3>
-          <ul className="space-y-2">
-            {queue.slice(1).map((token) => (
-              <li
+      {/* Upcoming Tokens */}
+      {waitingTokens.length > 0 && (
+        <div className="space-y-6">
+          <h2 className="text-white/80 text-2xl font-semibold text-center">Upcoming Tokens</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {waitingTokens.map((token) => (
+              <div
                 key={token._id}
-                className="bg-white/20 backdrop-blur-sm rounded-md px-4 py-3 flex items-center justify-between text-white"
+                className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-lg shadow-md hover:bg-white/10 transition text-white/90"
               >
-                <div className="flex items-center gap-3">
-                  <FaUserCircle className="text-2xl" />
-                  <span>
-                    {token.userId?.username || "Unknown"} - Token #{token.tokenNumber}
-                  </span>
+                <div className="flex items-center gap-3 text-lg">
+                  <FaUserCircle className="text-white/60 text-2xl" />
+                  <span>{token.userId?.username || "Unknown"}</span>
                 </div>
-                <span className="text-sm text-gray-300">
-                  {new Date(token.createdAt).toLocaleTimeString()}
+                <span className="text-indigo-300 font-bold text-2xl">
+                  #{token.tokenNumber}
                 </span>
-              </li>
+              </div>
             ))}
-          </ul>
-        </>
+          </div>
+        </div>
       )}
     </div>
   );
