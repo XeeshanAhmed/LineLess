@@ -88,4 +88,49 @@ const generateToken = async (req, res) => {
   }
 };
 
-export { getLatestToken,generateToken };
+
+const getTokenQueue = async (req, res) => {
+  try {
+    const { businessId, departmentId } = req.params;
+
+    const queue = await Token.find({
+      businessId,
+      departmentId,
+      status: "pending"
+    })
+      .populate("userId", "username email")
+      .sort({ createdAt: 1 }); // oldest token first
+
+    res.status(200).json({ queue });
+  } catch (error) {
+    console.error("Error fetching token queue:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const updateTokenStatus = async (req, res) => {
+  try {
+    const { tokenId } = req.params;
+    const { status } = req.body;
+
+    if (!["completed", "cancelled"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const updated = await Token.findByIdAndUpdate(
+      tokenId,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: "Token not found" });
+
+    res.status(200).json({ message: `Token ${status}`, token: updated });
+  } catch (error) {
+    console.error("Update token error:", error);
+    res.status(500).json({ message: "Failed to update token" });
+  }
+};
+
+
+export { getLatestToken,generateToken,getTokenQueue,updateTokenStatus };
