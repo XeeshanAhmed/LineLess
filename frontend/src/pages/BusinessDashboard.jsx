@@ -13,6 +13,8 @@ import {
 import { Dialog } from "@headlessui/react";
 import Preloader from "../components/Preloader";
 import TokenQueue from "../components/TokenQueue.jsx"; 
+import BusinessFeedback from "../components/BusinessFeedback.jsx";
+import AnalyticsTab from "../components/AnalyticsTab.jsx"; 
 
 
 const BusinessDashboard = () => {
@@ -58,6 +60,11 @@ const BusinessDashboard = () => {
 
     return () => clearTimeout(timeout);
   }, []);
+
+  const handleLogout = async () => {
+       
+   };
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,7 +145,9 @@ const BusinessDashboard = () => {
                 >
                   <FaIdBadge className="mr-2" /> Profile Details
                 </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500">
+                <button
+                  onClick={handleLogout}
+                 className="w-full text-left px-4 py-2 hover:bg-white/20 flex items-center text-red-400 hover:text-red-500">
                   <FaSignOutAlt className="mr-2" /> Logout
                 </button>
               </div>
@@ -231,27 +240,13 @@ const BusinessDashboard = () => {
           )}
 
           {activeTab === "feedback" && (
-            <div className="space-y-4 animate-fadeIn">
-          <h2 className="text-4xl font-extrabold text-white flex items-center gap-3 justify-center text-center">
-          💬 <span className="text-gradient bg-gradient-to-r from-yellow-400 to-pink-500 bg-clip-text text-transparent">
-            View Feedback
-          </span>
-        </h2>
-
-              <p className="text-white/70">No feedback available yet.</p>
-            </div>
+           <BusinessFeedback/>
           )}
 
           {activeTab === "analytics" && (
             <div className="space-y-4 animate-fadeIn">
-            <h2 className="text-4xl font-extrabold text-white flex items-center gap-3 justify-center text-center">
-              📊 <span className="text-gradient bg-gradient-to-r from-green-400 to-teal-500 bg-clip-text text-transparent">
-                View Analytics
-              </span>
-            </h2>
-
-              <p className="text-white/70">Analytics data will appear here.</p>
-            </div>
+           <AnalyticsTab />
+           </div>
           )}
         </div>
       </div>
