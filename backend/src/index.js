@@ -7,6 +7,7 @@ import businessRoutes from "./routes/authBusiness.route.js";
 import businessListRoutes from "./routes/businessList.route.js";
 import departmentRoutes from './routes/department.route.js';
 import tokenRoutes from './routes/token.route.js'
+import feedbackRoutes from "./routes/feedback.routes.js";
 
 import cors from "cors";
 
@@ -28,6 +29,7 @@ app.use('/api/businessAuth', businessRoutes);
 app.use("/api/business", businessListRoutes);
 app.use("/api/department",departmentRoutes)
 app.use("/api/token",tokenRoutes)
+app.use("/api/feedback", feedbackRoutes);
 
 
 app.get('/',(req,res)=>{

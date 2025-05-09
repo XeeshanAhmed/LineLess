@@ -4,9 +4,6 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 
 const JWT_SECRET=process.env.JWT_SECRET;
-console.log(JWT_SECRET);
-
-
 
 const signUp=async (req,res)=>{
     try {
