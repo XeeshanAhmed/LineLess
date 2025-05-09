@@ -9,6 +9,7 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
+import TokenQueue from "../components/TokenQueue";
 
 const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState("queue");
@@ -139,9 +140,7 @@ const BusinessDashboard = () => {
 
         {/* Dynamic Content */}
         <div className="mt-20">
-          {activeTab === "queue" && (
-            <h2 className="text-2xl font-bold">🧾 Queue Management</h2>
-          )}
+          {activeTab === "queue" && <TokenQueue />}
           {activeTab === "feedback" && (
             <h2 className="text-2xl font-bold">💬 View Feedback</h2>
           )}

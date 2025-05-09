@@ -5,7 +5,9 @@ import { loginUser } from "../services/authUserService";
 import { loginBusiness } from "../services/authBusinessService";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authUserSlice";
+import { setLoggedInBusiness } from "../store/slices/authBusinessSlice";
 import axios from "axios";
+import { setBusiness, setDepartment } from "../store/slices/businessSlice";
 
 const LoginPage = () => {
   const { role } = useParams();
@@ -61,11 +63,22 @@ const LoginPage = () => {
         const departments = res.departments || [];
         const isOnlyGeneral = departments.length === 1 && departments[0].toLowerCase() === "general";
 
-        localStorage.setItem("selectedBusiness", JSON.stringify({
-          name: res.businessName,
-          departments
-        }));
+        // localStorage.setItem("selectedBusiness", JSON.stringify({
+        //   name: res.businessName,
+        //   departments
+        // }));
+        const authres = await axios.get('http://localhost:5000/api/businessAuth/me', {
+          withCredentials: true, 
+        });
 
+        dispatch(setLoggedInBusiness(authres.data.business));
+               
+        dispatch(setBusiness(res.business));
+        if(res.defaultDepartment){
+          console.log(res.data);
+          
+          dispatch(setDepartment(res.defaultDepartment));
+        }
         if (isOnlyGeneral) {
           localStorage.setItem("selectedDepartment", "General");
           navigate("/dashboard/business");
