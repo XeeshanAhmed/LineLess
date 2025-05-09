@@ -10,6 +10,7 @@
   } from "react-icons/fa";
   import Preloader from "../components/Preloader";
   import { generateTokenForUser, getLatestTokenNumber } from "../services/tokenService";
+  import {getFeedbackForDepartment,submitFeedback as submitFeedbackAPI,} from "../services/feedbackService";  
   import { useSelector, useDispatch } from "react-redux";
   import { useNavigate } from "react-router-dom";
   import { logoutUser } from "../services/authUserService";
@@ -17,6 +18,7 @@
   import { clearUser } from "../store/slices/authUserSlice";
   import { FaStar } from "react-icons/fa";
   import { Dialog } from "@headlessui/react";
+  import { formatDistanceToNow, parseISO, format } from "date-fns";
 
   const fetchDemoFeedback = () => {
     const demoFeedback = [
@@ -79,6 +81,7 @@
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [showSavedMessage, setShowSavedMessage] = useState(false);
 
+
     const [profile, setProfile] = useState({
       email: "hassnainidrees@gmail.com",
       username: "Hassnain",
@@ -109,8 +112,16 @@
     useEffect(() => {
       if (activeTab === "feedback") {
         const loadFeedback = async () => {
-          const data = await fetchDemoFeedback();
-          setFeedbackList(data);
+          try {
+            const data = await getFeedbackForDepartment(
+              selectedBusiness.businessId,
+              selectedDepartment.departmentId
+            );
+            console.log("feedback api response",data)
+            setFeedbackList(data.feedbacks);
+          } catch (err) {
+            console.error("Error loading feedback:", err);
+          }
         };
         loadFeedback();
       }
@@ -123,22 +134,42 @@
       }
     
       setIsSubmitting(true);
+      try {
+        const feedbackData = {
+          userId:user.id,
+          businessId: selectedBusiness.businessId,
+          departmentId: selectedDepartment.departmentId,
+          rating,
+          comment,
+        };
     
-      const newFeedback = {
-        id: Date.now(), // Replace with backend ID in real app
-        user: "You", // Or fetched from auth
-        comment,
-        rating,
-        timestamp: new Date().toLocaleString(),
-      };
+        const savedFeedback = await submitFeedbackAPI(feedbackData);
     
-      // Simulate API call
-      setTimeout(() => {
-        setFeedbackList((prev) => [newFeedback, ...prev]);
+        setFeedbackList((prev) => [savedFeedback, ...prev]);
         setComment("");
         setRating(0);
+      } catch (error) {
+        console.error("Error submitting feedback:", error);
+        alert("Failed to submit feedback.");
+      } finally {
         setIsSubmitting(false);
-      }, 1000);
+      }
+    
+      // const newFeedback = {
+      //   id: Date.now(), // Replace with backend ID in real app
+      //   user: "You", // Or fetched from auth
+      //   comment,
+      //   rating,
+      //   timestamp: new Date().toLocaleString(),
+      // };
+    
+      // // Simulate API call
+      // setTimeout(() => {
+      //   setFeedbackList((prev) => [newFeedback, ...prev]);
+      //   setComment("");
+      //   setRating(0);
+      //   setIsSubmitting(false);
+      // }, 1000);
     };
     
   ///for the snapshot data
@@ -547,16 +578,16 @@
 
               {/* 💬 Feedback List Section */}
               {feedbackList.length === 0 ? (
-                <div className="text-center text-white/60 animate-pulse">Loading feedback...</div>
+                <div className="text-center text-white/60 animate-pulse">No comments yet...<br/>Be the first to comment out! </div>
               ) : (
                 feedbackList.map((fb) => (
                   <div
-                    key={fb.id}
+                    key={fb._id}
                     className="p-6 rounded-xl bg-white/10 border border-white/20 shadow-lg backdrop-blur-md"
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold text-white">{fb.user}</h4>
-                      <span className="text-sm text-white/50">{fb.timestamp}</span>
+                      <h4 className="text-lg font-semibold text-white">{fb.userId?.username}</h4>
+                      <span className="text-sm text-white/50"> {`${format(parseISO(fb.createdAt), "PPP")} (${formatDistanceToNow(parseISO(fb.createdAt), { addSuffix: true })})`}</span>
                     </div>
                     <div className="flex items-center mb-2">
                       {Array(5)
