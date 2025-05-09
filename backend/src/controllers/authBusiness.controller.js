@@ -48,7 +48,7 @@ const businessSignUp = async (req, res) => {
       await business.save();
     }
 
-    const token = jwt.sign({ id: business._id, role: business.role }, JWT_SECRET);
+    // const token = jwt.sign({ id: business._id, role: business.role }, JWT_SECRET);
 
     res.status(201).json({
       message: 'Business created successfully',
@@ -76,16 +76,36 @@ const businessLogin = async (req, res) => {
     
     const departments = await Department.find({ businessId: business._id }).select("name -_id").lean();
     const departmentNames = departments.map((d) => d.name);
-    
-    const token = jwt.sign({ id: business._id, role: business.role }, JWT_SECRET);
 
-    res.status(200).json({
-      token,
-      role: business.role,
-      businessName: business.businessName,
-      departments: departmentNames,
-      message: "Login successful"
-    });
+    let defaultDepartment = null;
+    if (business.defaultDepartmentId) {
+      const dept = await Department.findById(business.defaultDepartmentId).select("name");
+      if (dept) {
+        defaultDepartment = {
+          _id: dept._id,
+          name: dept.name,
+        };
+      }
+    }
+    
+    const token = jwt.sign({ id: business._id, role: business.role }, JWT_SECRET,{ expiresIn: '1d' });
+
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000
+      }).status(200).json({
+        token,
+        role: business.role,
+        business: {
+          businessId: business._id,
+          name: business.businessName,
+        },
+        departments: departmentNames,
+        defaultDepartment,
+        message: "Login successful"
+       });
 
   } catch (error) {
     res.status(400).json({
@@ -94,4 +114,28 @@ const businessLogin = async (req, res) => {
   }
 };
 
-export { businessSignUp,businessLogin };
+const getLoggedInBusiness = (req, res) => {
+  const token = req.cookies.jwt;
+  console.log(token);
+  if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+  try {
+    console.log("token tu mil gya h")
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log("decode b kr liya h",decoded);
+    // Optionally fetch full user details from DB here using decoded.id
+    res.status(200).json({ business: { id: decoded.id, role: decoded.role } });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+const logoutBusiness = (req, res) => {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+  });
+  res.status(200).json({ message: "Logged out successfully" });
+};
+export { businessSignUp,businessLogin,getLoggedInBusiness,logoutBusiness };

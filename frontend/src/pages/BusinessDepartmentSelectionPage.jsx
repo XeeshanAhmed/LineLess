@@ -1,42 +1,48 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Preloader from "../components/Preloader";
+import { useDispatch, useSelector } from "react-redux";
+import { getDepartmentsByBusinessId } from "../services/departmentService";
+import { setDepartment } from "../store/slices/businessSlice";
 
 const BusinessDepartmentSelectionPage = () => {
   const navigate = useNavigate();
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  // const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [departments, setDepartments] = useState([]);
+  const dispatch=useDispatch();
 
-  useEffect(() => {
-    const storedBusiness = JSON.parse(localStorage.getItem("selectedBusiness"));
-    if (!storedBusiness) {
-      navigate("/login/business");
-      return;
-    }
-
-    const departments = storedBusiness.departments || [];
-    const isOnlyGeneral =
-      departments.length === 1 &&
-      departments[0].toLowerCase() === "general";
-
-    if (isOnlyGeneral) {
-      localStorage.setItem("selectedDepartment", "General");
-      navigate("/dashboard/business");
-      return;
-    }
-
-    setSelectedBusiness(storedBusiness);
-    setLoading(false);
-  }, [navigate]);
+    useEffect(() => {
+      const fetchDepartments = async () => {
+        if (!selectedBusiness) {
+          navigate("/login/business");
+          return;
+        }
+  
+        try {
+          const data = await getDepartmentsByBusinessId(selectedBusiness.businessId);
+          const fetchedDepartments = data;          
+          setDepartments(fetchedDepartments);
+        } catch (error) {
+          console.error("Error fetching departments:", error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchDepartments();
+    }, [navigate, selectedBusiness]);
+  
 
   const handleDeptSelect = (dept) => {
-    localStorage.setItem("selectedDepartment", dept);
+    dispatch(setDepartment(dept))
     navigate("/dashboard/business");
   };
 
-  const filteredDepartments = selectedBusiness?.departments.filter((dept) =>
-    dept.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDepartments = departments.filter((dept) =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading || !selectedBusiness) return <Preloader />;
@@ -62,7 +68,7 @@ const BusinessDepartmentSelectionPage = () => {
             onClick={() => handleDeptSelect(dept)}
             className="p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg animate-fadeIn"
           >
-            <h2 className="text-lg font-semibold">{dept}</h2>
+            <h2 className="text-lg font-semibold">{dept.name}</h2>
           </button>
         ))}
       </div>

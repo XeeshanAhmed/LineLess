@@ -228,17 +228,13 @@ const BusinessDashboard = () => {
 
         {/* Dynamic Content */}
         <div className="mt-20">
-          {activeTab === "queue" && (
-            <div className="space-y-6 animate-fadeIn">
-              {activeTab === "queue" && (
+           {activeTab === "queue" && (
                 <div className="space-y-6 animate-fadeIn">
                   <TokenQueue />
                 </div>
               )}
 
-            </div>
-          )}
-
+     
           {activeTab === "feedback" && (
            <BusinessFeedback/>
           )}
