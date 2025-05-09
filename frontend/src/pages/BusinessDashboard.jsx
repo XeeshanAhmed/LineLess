@@ -12,6 +12,8 @@ import {
 } from "react-icons/fa";
 import { Dialog } from "@headlessui/react";
 import Preloader from "../components/Preloader";
+
+import { useSelector } from "react-redux";
 import TokenQueue from "../components/TokenQueue.jsx"; 
 import BusinessFeedback from "../components/BusinessFeedback.jsx";
 import AnalyticsTab from "../components/AnalyticsTab.jsx"; 
@@ -20,6 +22,9 @@ import AnalyticsTab from "../components/AnalyticsTab.jsx";
 const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState("queue");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
+  const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -31,32 +36,31 @@ const BusinessDashboard = () => {
     confirmPassword: "",
   });
 
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const business = JSON.parse(localStorage.getItem("selectedBusiness"));
-    const department = localStorage.getItem("selectedDepartment");
+  //   // const business = JSON.parse(localStorage.getItem("selectedBusiness"));
+  //   // const department = localStorage.getItem("selectedDepartment");
 
-    if (business) {
-      setSelectedBusiness(business);
+  //   if (business) {
+  //     setSelectedBusiness(business);
 
-      const hasDepartments =
-        business.hasDepartments ||
-        (business.departments && business.departments.length > 0);
+  //     const hasDepartments =
+  //       business.hasDepartments ||
+  //       (business.departments && business.departments.length > 0);
 
-      if (!hasDepartments) {
-        localStorage.removeItem("selectedDepartment");
-        setSelectedDepartment(null);
-      } else {
-        setSelectedDepartment(department);
-      }
-    }
+  //     if (!hasDepartments) {
+  //       localStorage.removeItem("selectedDepartment");
+  //       setSelectedDepartment(null);
+  //     } else {
+  //       setSelectedDepartment(department);
+  //     }
+  //   }
 
     const timeout = setTimeout(() => {
       setLoading(false);
-    }, 800);
+
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -91,10 +95,12 @@ const BusinessDashboard = () => {
         {selectedBusiness && (
           <div className="border border-white/20 rounded-2xl bg-white/5 p-4 shadow-md backdrop-blur-sm">
             <h2 className="text-lg font-semibold text-white/90">
-              {selectedBusiness.name || "Business Name"}
+              {selectedBusiness.businessName}
             </h2>
             {selectedDepartment && (
-              <p className="text-sm text-white/60 mt-1">{">"} {selectedDepartment}</p>
+              <p className="text-sm text-white/60 mt-1">
+                {">"} {selectedDepartment.departmentName}
+              </p>
             )}
           </div>
         )}

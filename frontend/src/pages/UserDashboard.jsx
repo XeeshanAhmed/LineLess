@@ -211,7 +211,7 @@
         }
       };
       fetchLatestToken();
-    }, [selectedBusiness, selectedDepartment, isAuthenticated]);
+    }, [selectedBusiness, selectedDepartment, isAuthenticated,generatedToken]);
 
     const handleGenerateToken = async () => {
       try {
