@@ -10,37 +10,40 @@ import {
 } from "react-icons/fa";
 import Preloader from "../components/Preloader";
 import TokenQueue from "../components/TokenQueue";
+import { useSelector } from "react-redux";
 
 const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState("queue");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  // const [selectedBusiness, setSelectedBusiness] = useState(null);
+  // const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
+  const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const business = JSON.parse(localStorage.getItem("selectedBusiness"));
-    const department = localStorage.getItem("selectedDepartment");
+  //   // const business = JSON.parse(localStorage.getItem("selectedBusiness"));
+  //   // const department = localStorage.getItem("selectedDepartment");
 
-    if (business) {
-      setSelectedBusiness(business);
+  //   if (business) {
+  //     setSelectedBusiness(business);
 
-      const hasDepartments =
-        business.hasDepartments ||
-        (business.departments && business.departments.length > 0);
+  //     const hasDepartments =
+  //       business.hasDepartments ||
+  //       (business.departments && business.departments.length > 0);
 
-      if (!hasDepartments) {
-        localStorage.removeItem("selectedDepartment");
-        setSelectedDepartment(null);
-      } else {
-        setSelectedDepartment(department);
-      }
-    }
+  //     if (!hasDepartments) {
+  //       localStorage.removeItem("selectedDepartment");
+  //       setSelectedDepartment(null);
+  //     } else {
+  //       setSelectedDepartment(department);
+  //     }
+  //   }
 
     // Add slight delay for preloader effect
     const timeout = setTimeout(() => {
       setLoading(false);
-    }, 800); // 800ms to match animation feel
+    }, 500); // 800ms to match animation feel
 
     return () => clearTimeout(timeout);
   }, []);
@@ -67,11 +70,11 @@ const BusinessDashboard = () => {
         {selectedBusiness && (
           <div className="border border-white/20 rounded-2xl bg-white/5 p-4 shadow-md backdrop-blur-sm">
             <h2 className="text-lg font-semibold text-white/90">
-              {selectedBusiness.name}
+              {selectedBusiness.businessName}
             </h2>
             {selectedDepartment && (
               <p className="text-sm text-white/60 mt-1">
-                {">"} {selectedDepartment}
+                {">"} {selectedDepartment.departmentName}
               </p>
             )}
           </div>
