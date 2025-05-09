@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from './store/slices/authUserSlice';
+import { setLoggedInBusiness, clearBusiness } from './store/slices/authBusinessSlice';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -22,17 +23,38 @@ function App() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/userAuth/me', { withCredentials: true });
-        dispatch(setUser(res.data.user));
-        console.log("res",res);
-        console.log("data",res.data);
-        console.log("user fetched from token::",res.data.user);
+        if(res.data.user.role=="user"){
+         dispatch(setUser(res.data.user));
+
+        }
       } catch (err) {
         dispatch(clearUser());
-        console.log("no use fetched from token::")
       }
     };
 
     fetchUser();
+  }, []);
+  useEffect(() => {
+    const fetchBusiness = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/businessAuth/me', {
+          withCredentials: true,
+        });
+        console.log(res);
+        
+        if(res.data.business){
+          console.log("han");
+          console.log(res.data.business.role);
+          
+          dispatch(setLoggedInBusiness(res.data.business));
+
+        }
+      } catch (err) {
+        dispatch(clearBusiness());
+      }
+    };
+
+    fetchBusiness();
   }, []);
   return (
     <>

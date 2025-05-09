@@ -12,3 +12,13 @@ export const generateTokenForUser = async (userId, businessId, departmentId) => 
     );
     return response.data;
   };
+
+export const getTokenQueue = async (businessId, departmentId) => {
+  const res = await axios.get(`${BASE_URL}/queue/${businessId}/${departmentId}`);
+  return res.data;
+};
+
+export const updateTokenStatus = async (tokenId, status) => {
+  const res = await axios.put(`${BASE_URL}/update-status/${tokenId}`, { status });
+  return res.data;
+};
