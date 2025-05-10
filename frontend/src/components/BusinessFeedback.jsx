@@ -1,39 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
+import { useSelector } from "react-redux";
+import { getFeedbackForDepartment } from "../services/feedbackService";
 
 const BusinessFeedback = () => {
   const [feedbackList, setFeedbackList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Replace with actual API call in production
+  const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
+  const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
+
   useEffect(() => {
-    // Dummy feedbacks
-    const dummyFeedbacks = [
-      {
-        _id: "1",
-        userId: { username: "AliRaza01" },
-        createdAt: new Date().toISOString(),
-        rating: 4,
-        comment: "Great service and very efficient system!",
-      },
-      {
-        _id: "2",
-        userId: { username: "SarahAhmed" },
-        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-        rating: 5,
-        comment: "Loved the experience. Super smooth!",
-      },
-      {
-        _id: "3",
-        userId: { username: "TechGuy22" },
-        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(), // 3 days ago
-        rating: 3,
-        comment: "It was okay, but had to wait a bit.",
-      },
-    ];
+    const loadFeedback = async () => {
+      if (!selectedBusiness || !selectedBusiness.businessId) {
+        setErrorMessage("Something went wrong.");
+        return;
+      }
 
-    setFeedbackList(dummyFeedbacks);
-  }, []);
+      setErrorMessage("");
+      setLoading(true);
+
+      try {
+        const data = await getFeedbackForDepartment(
+          selectedBusiness.businessId,
+          selectedDepartment.departmentId
+        );
+        console.log("Feedback API response:", data);
+        setFeedbackList(data.feedbacks || []);
+      } catch (err) {
+        console.error("Error loading feedback:", err);
+        setErrorMessage("Failed to load feedback. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeedback();
+  }, [selectedBusiness, selectedDepartment]);
 
   return (
     <section className="p-6 max-w-4xl mx-auto flex flex-col items-center">
@@ -44,10 +49,12 @@ const BusinessFeedback = () => {
         </span>
       </h2>
 
-      {feedbackList.length === 0 ? (
-        <div className="text-center text-white/60 animate-pulse">
-          No comments yet...
-        </div>
+      {errorMessage ? (
+        <div className="text-center text-red-400 font-semibold">{errorMessage}</div>
+      ) : loading ? (
+        <div className="text-center text-white/60 animate-pulse">Loading feedback...</div>
+      ) : feedbackList.length === 0 ? (
+        <div className="text-center text-white/60 animate-pulse">No comments yet...</div>
       ) : (
         <div className="space-y-6 w-full">
           {feedbackList.map((fb) => (
@@ -57,7 +64,7 @@ const BusinessFeedback = () => {
             >
               <div className="flex justify-between items-center mb-2">
                 <h4 className="text-lg font-semibold text-white">
-                  {fb.userId?.username}
+                  {fb.userId?.username || "Anonymous"}
                 </h4>
                 <span className="text-sm text-white/50">
                   {`${format(parseISO(fb.createdAt), "PPP")} (${formatDistanceToNow(parseISO(fb.createdAt), {

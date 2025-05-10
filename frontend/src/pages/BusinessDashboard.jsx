@@ -12,11 +12,14 @@ import {
 } from "react-icons/fa";
 import { Dialog } from "@headlessui/react";
 import Preloader from "../components/Preloader";
-
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TokenQueue from "../components/TokenQueue.jsx"; 
 import BusinessFeedback from "../components/BusinessFeedback.jsx";
 import AnalyticsTab from "../components/AnalyticsTab.jsx"; 
+import { logoutBusiness } from "../services/authBusinessService.js";
+import { clearBusiness } from "../store/slices/authBusinessSlice.js";
+import { resetSelection } from "../store/slices/businessSlice.js";
+import { useNavigate } from "react-router-dom";
 
 
 const BusinessDashboard = () => {
@@ -24,7 +27,8 @@ const BusinessDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const selectedBusiness = useSelector((state) => state.business.selectedBusiness);
   const selectedDepartment = useSelector((state) => state.business.selectedDepartment);
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [profileOpen, setProfileOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -66,7 +70,14 @@ const BusinessDashboard = () => {
   }, []);
 
   const handleLogout = async () => {
-       
+        try {
+          await logoutBusiness();
+          dispatch(clearBusiness());
+          dispatch(resetSelection());
+          navigate("/login/business");
+        } catch (error) {
+          console.error("Logout failed:", error);
+        }
    };
 
 

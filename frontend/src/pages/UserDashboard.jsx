@@ -19,43 +19,8 @@
   import { FaStar } from "react-icons/fa";
   import { Dialog } from "@headlessui/react";
   import { formatDistanceToNow, parseISO, format } from "date-fns";
+  import { getSnapshotData } from "../services/snapshotService";
 
-  const fetchDemoFeedback = () => {
-    const demoFeedback = [
-      {
-        id: 1,
-        user: "Ali Raza",
-        rating: 5,
-        comment: "Amazing service! Quick and efficient.",
-        timestamp: "2 hours ago",
-      },
-      {
-        id: 2,
-        user: "Sara Ahmed",
-        rating: 4,
-        comment: "Good experience but can be improved.",
-        timestamp: "Yesterday",
-      },
-      {
-        id: 3,
-        user: "John Doe",
-        rating: 3,
-        comment: "Average service, long waiting time.",
-        timestamp: "3 days ago",
-      },
-      {
-        id: 4,
-        user: "Ayesha Khan",
-        rating: 5,
-        comment: "Loved how quick and smooth the process was!",
-        timestamp: "Just now",
-      },
-    ];
-
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(demoFeedback), 500); // simulate API delay
-    });
-  };
 
   const UserDashboard = () => {
     const [activeTab, setActiveTab] = useState("generate");
@@ -155,21 +120,6 @@
         setIsSubmitting(false);
       }
     
-      // const newFeedback = {
-      //   id: Date.now(), // Replace with backend ID in real app
-      //   user: "You", // Or fetched from auth
-      //   comment,
-      //   rating,
-      //   timestamp: new Date().toLocaleString(),
-      // };
-    
-      // // Simulate API call
-      // setTimeout(() => {
-      //   setFeedbackList((prev) => [newFeedback, ...prev]);
-      //   setComment("");
-      //   setRating(0);
-      //   setIsSubmitting(false);
-      // }, 1000);
     };
     
   ///for the snapshot data
@@ -177,19 +127,33 @@
 
   useEffect(() => {
     if (activeTab === "snapshot") {
-      // Simulate snapshot data fetch
-      const fakeSnapshot = {
-        currentToken: 37,
-        nextToken: 38,
-        estimatedServiceTime: 12,
-        tokensBeforeYou: 5,
+      // // Simulate snapshot data fetch
+      // const fakeSnapshot = {
+      //   currentToken: 37,
+      //   nextToken: 38,
+      //   estimatedServiceTime: 12,
+      //   tokensBeforeYou: 5,
+      // };
+      // setSnapshotData(fakeSnapshot);
+      const fetchSnapshot = async () => {
+        try {
+          const data = await getSnapshotData(
+            selectedBusiness.businessId,
+            selectedDepartment.departmentId,
+            user.id
+          );
+          setSnapshotData(data);
+        } catch (err) {
+          console.error("Error fetching snapshot data:", err);
+        }
       };
-      setSnapshotData(fakeSnapshot);
+      fetchSnapshot();
     }
   }, [activeTab]);
 
   ///
     useEffect(() => {
+      if(activeTab==="generate"){
       const fetchLatestToken = async () => {
         if (!isAuthenticated) {
           navigate('/login/user');
@@ -211,7 +175,8 @@
         }
       };
       fetchLatestToken();
-    }, [selectedBusiness, selectedDepartment, isAuthenticated,generatedToken]);
+    }
+    }, [selectedBusiness, selectedDepartment, isAuthenticated,generatedToken,activeTab]);
 
     const handleGenerateToken = async () => {
       try {
@@ -253,7 +218,7 @@
     if (loading) return <Preloader />;
 
     return (
-      <div className="min-h-screen bg-gradient-to-tr from-gray-900 via-black to-gray-800 text-white font-sans animate-fadeIn">
+      <div className="min-h-screen bg-gradient-to-tr from-gray-900 via-black to-gray-800 text-white font-sans">
         {/* Sidebar */}
         <aside className="w-20 sm:w-64 fixed top-0 left-0 h-full bg-white/10 backdrop-blur-xl shadow-xl p-4 sm:p-6 space-y-4 z-40">
           <h1 className="text-xl sm:text-3xl font-bold text-white tracking-wide hidden sm:block">LineLess</h1>
@@ -501,11 +466,11 @@
                     <div className="grid grid-cols-2 gap-6">
                     <div className="p-4 rounded-xl bg-green-600 text-white text-center">
                     <p className="text-sm">Current Token</p>
-                    <p className="text-4xl font-bold">#{snapshotData.currentToken}</p>
+                    <p className="text-4xl font-bold">{snapshotData.currentToken}</p>
                     </div>
                     <div className="p-4 rounded-xl bg-blue-600 text-white text-center">
                     <p className="text-sm">Next Token</p>
-                    <p className="text-4xl font-bold">#{snapshotData.nextToken}</p>
+                    <p className="text-4xl font-bold">{snapshotData.nextToken}</p>
                     </div>
                     <div className="p-4 rounded-xl bg-purple-600 text-white text-center">
                     <p className="text-sm">Est. Time</p>
