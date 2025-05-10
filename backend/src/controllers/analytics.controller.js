@@ -161,7 +161,7 @@ export const getTokenAnalytics = async (req, res) => {
       res.status(500).json({ error: 'Server error' });
     }
   };
-// Controller for feedback analytics
+
 export const getFeedbackAnalytics = async (req, res) => {
   const { businessId, departmentId } = req.params;
 

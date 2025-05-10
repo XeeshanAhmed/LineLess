@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL = "http://localhost:5000/api/analytics"; // Base URL for analytics endpoints
+const BASE_URL = "/analytics"; // Base URL for analytics endpoints
 
 // Get token analytics data
 export const getTokenAnalytics = async (businessId, departmentId) => {

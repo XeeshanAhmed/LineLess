@@ -48,7 +48,6 @@ const businessSignUp = async (req, res) => {
       await business.save();
     }
 
-    // const token = jwt.sign({ id: business._id, role: business.role }, JWT_SECRET);
 
     res.status(201).json({
       message: 'Business created successfully',
@@ -120,10 +119,11 @@ const getLoggedInBusiness = (req, res) => {
   if (!token) return res.status(401).json({ message: "Not authenticated" });
 
   try {
-    console.log("token tu mil gya h")
+
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("decode b kr liya h",decoded);
-    // Optionally fetch full user details from DB here using decoded.id
+    if (decoded.role !== "business") {
+      return res.status(403).json({ message: "Access denied, not a business" });
+    }
     res.status(200).json({ business: { id: decoded.id, role: decoded.role } });
   } catch (err) {
     res.status(401).json({ message: "Invalid token" });

@@ -23,6 +23,7 @@ function App() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/userAuth/me', { withCredentials: true });
+        
         if(res.data.user.role=="user"){
          dispatch(setUser(res.data.user));
 
@@ -43,8 +44,6 @@ function App() {
         console.log(res);
         
         if(res.data.business){
-          console.log("han");
-          console.log(res.data.business.role);
           
           dispatch(setLoggedInBusiness(res.data.business));
 

@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL = "http://localhost:5000/api/feedback";
+const BASE_URL = "/feedback";
 
 
 export const submitFeedback = async (feedbackData) => {

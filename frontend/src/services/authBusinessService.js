@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL = "http://localhost:5000/api/businessAuth";
+const BASE_URL = "/businessAuth";
 
 export const loginBusiness = async (data) => {
   const response = await axios.post(`${BASE_URL}/login`, data, {
