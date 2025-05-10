@@ -13,3 +13,10 @@ export const signupBusiness = async (data) => {
   const response = await axios.post(`${BASE_URL}/signup`, data);
   return response.data;
 };
+
+export const logoutBusiness = async () => {
+  const response = await axios.post(
+    `${BASE_URL}/logout`,{},{withCredentials: true,}
+  );
+  return response.data;
+};
