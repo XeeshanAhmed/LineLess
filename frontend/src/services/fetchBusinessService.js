@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL = "http://localhost:5000/api/business";
+const BASE_URL = "/business";
 
 export const fetchBusinesses = async () => {
   const response = await axios.get(`${BASE_URL}/list`);

@@ -22,7 +22,6 @@ const businessSlice = createSlice({
         departmentId: action.payload._id,
         departmentName: action.payload.name
       };
-      console.log('Selected department',state.selectedDepartment)
     },
     resetSelection: (state) => {
       state.selectedBusiness = null;

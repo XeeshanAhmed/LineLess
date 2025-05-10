@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL = "http://localhost:5000/api/token";
+const BASE_URL = "/token";
 
 export const getLatestTokenNumber = async (businessId, departmentId) => {
   const res = await axios.get(`${BASE_URL}/getLatestToken/${businessId}/${departmentId}`);

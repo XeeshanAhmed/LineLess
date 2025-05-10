@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL = "http://localhost:5000/api/userAuth";
+const BASE_URL = "/userAuth";
 
 export const loginUser = async (data) => {
     console.log(data);

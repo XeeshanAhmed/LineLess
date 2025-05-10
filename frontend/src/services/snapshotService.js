@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "./axios/axiosInstance";
 
-const BASE_URL='http://localhost:5000/api/snapshot';
+const BASE_URL='/snapshot';
 export const getSnapshotData = async (businessId, departmentId, userId) => {
   try {
     const response = await axios.get(

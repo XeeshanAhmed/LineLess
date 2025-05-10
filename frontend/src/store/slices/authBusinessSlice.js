@@ -14,7 +14,6 @@ const authBusinessSlice = createSlice({
       state.business = action.payload;
       state.isAuthenticated = true;
       state.loading = false;
-      console.log("Business state set:", action.payload);
     },
     clearBusiness: (state) => {
       state.business = null;
