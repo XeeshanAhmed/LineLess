@@ -8,6 +8,9 @@ import businessListRoutes from "./routes/businessList.route.js";
 import departmentRoutes from './routes/department.route.js';
 import tokenRoutes from './routes/token.route.js'
 import feedbackRoutes from "./routes/feedback.routes.js";
+import analyticsRoutes from './routes/analytics.routes.js';
+import snapshotRoutes from './routes/snapshot.route.js';
+
 
 import cors from "cors";
 
@@ -30,6 +33,8 @@ app.use("/api/business", businessListRoutes);
 app.use("/api/department",departmentRoutes)
 app.use("/api/token",tokenRoutes)
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/snapshot", snapshotRoutes);
 
 
 app.get('/',(req,res)=>{
