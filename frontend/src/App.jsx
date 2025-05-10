@@ -15,6 +15,8 @@ import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from './store/slices/authUserSlice';
 import { setLoggedInBusiness, clearBusiness } from './store/slices/authBusinessSlice';
 import { ToastContainer } from "react-toastify";
+import PrivateRoute from "./components/PrivateRoute";
+import Unauthorized from "./pages/Unauthorized";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -59,17 +61,34 @@ function App() {
   return (
     <>
     <Routes>
-      <Route path="/" element={<RoleSelectionPage />} />
-      <Route path="/login/:role" element={<LoginPage />} />
-      <Route path="/signup/user" element={<SignupUserPage />} />
-      <Route path="/signup/business" element={<SignupBusinessPage />} />
-      <Route path="/dashboard/user" element={<UserDashboard />} />
-      <Route path="/select-business" element={<BusinessSelectionPage />} />
-      <Route path="/select-user-department" element={<UserDepartmentSelectionPage />} />
-      <Route path="/select-business-department" element={<BusinessDepartmentSelectionPage />} />
-      <Route path="/dashboard/business" element={<BusinessDashboard />} />
-      <Route path="/forgot-password/:role/:username" element={<ForgotPasswordPage />} />
-    </Routes>
+  <Route path="/" element={<RoleSelectionPage />} />
+  <Route path="/login/:role" element={<LoginPage />} />
+  <Route path="/signup/user" element={<SignupUserPage />} />
+  <Route path="/signup/business" element={<SignupBusinessPage />} />
+
+  {/* 🔒 User Routes */}
+  <Route path="/dashboard/user" element={
+    <PrivateRoute allowedRole="user"><UserDashboard /></PrivateRoute>
+  } />
+  <Route path="/select-business" element={
+    <PrivateRoute allowedRole="user"><BusinessSelectionPage /></PrivateRoute>
+  } />
+  <Route path="/select-user-department" element={
+    <PrivateRoute allowedRole="user"><UserDepartmentSelectionPage /></PrivateRoute>
+  } />
+
+  {/* 🔒 Business Routes */}
+  <Route path="/dashboard/business" element={
+    <BusinessDashboard />
+  } />
+  <Route path="/select-business-department" element={
+    <PrivateRoute allowedRole="business"><BusinessDepartmentSelectionPage /></PrivateRoute>
+  } />
+
+  <Route path="/forgot-password/:role/:username" element={<ForgotPasswordPage />} />
+  <Route path="/unauthorized" element={<Unauthorized />} />
+  <Route path="*" element={<div>404 - Page Not Found</div>} />
+</Routes>
     <ToastContainer position="top-right" autoClose={3000} />
     </>
   );

@@ -235,9 +235,12 @@
     const handleLogout = async () => {
       try {
         await logoutUser();
-        dispatch(clearUser());
-        dispatch(resetSelection());
         navigate("/");
+    setTimeout(() => {
+      dispatch(clearUser());
+      dispatch(resetSelection());
+      setIsLoggingOut(false);
+    }, 100);
       } catch (error) {
         console.error("Logout failed:", error);
       }
