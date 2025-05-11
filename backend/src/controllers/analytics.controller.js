@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Token from '../models/token.model.js';  // Adjust the path as needed
 import Feedback from '../models/feedback.model.js';  // Adjust the path as needed
+import Department from '../models/department.model.js';
 
 // Controller for token analytics
 // export const getTokenAnalytics = async (req, res) => {

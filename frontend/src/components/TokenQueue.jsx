@@ -74,9 +74,9 @@ const TokenQueue = () => {
   const waitingTokens = queue.slice(1);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div className="max-w-5xl mx-auto space-y-12 mt-28">
       {/* Current Token */}
-      <div className="bg-gradient-to-br from-[#1f1f25] to-[#1a1a1f] border border-white/10 rounded-3xl p-10 text-center shadow-xl">
+      <div className=" bg-gradient-to-br from-[#1f1f25] to-[#1a1a1f] border border-white/10 rounded-3xl p-10 text-center shadow-xl">
         <p className="text-white/60 text-base uppercase tracking-widest">
           Now Serving
         </p>
