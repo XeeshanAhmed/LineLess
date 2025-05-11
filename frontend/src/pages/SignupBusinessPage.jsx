@@ -146,7 +146,6 @@ const SignupBusinessPage = () => {
       };
 
       const res = await signupBusiness(payload);
-      localStorage.setItem("token", res.token);
       toast.success("OTP Verified! Business account created.");
       setShowOtpModal(false);
       navigate("/login/business");
@@ -157,7 +156,7 @@ const SignupBusinessPage = () => {
 
   const handleResendOtp = async () => {
     try {
-      const otpRes = await axios.post("/api/userAuth/send-otp", { email });
+      const otpRes = await axios.post("http://localhost:5000/api/userAuth/send-otp", { email });
       setGeneratedOtp(otpRes.data.otp);
       setOtp("");
       setOtpExpired(false);

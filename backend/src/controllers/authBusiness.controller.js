@@ -51,7 +51,6 @@ const businessSignUp = async (req, res) => {
 
     res.status(201).json({
       message: 'Business created successfully',
-      token,
       role: business.role
     });
 
