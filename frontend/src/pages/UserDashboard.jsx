@@ -299,100 +299,104 @@
               </div>
             )}
 
-            {/* Profile Dialog */}
-            <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-              <div className="flex items-center justify-center min-h-screen p-4">
-                <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
-                  <Dialog.Title className="text-white text-2xl font-bold mb-4">Profile Details</Dialog.Title>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-white/70">Email</label>
-                      <input
-                        type="email"
-                        value={profile.email}
-                        disabled
-                        className="w-full p-2 rounded bg-white/20 text-white cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-white/70">Username</label>
-                      <input
-                        name="username"
-                        value={profile.username}
-                        disabled={!isEditing}
-                        onChange={handleInputChange}
-                        className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-white/70">Password</label>
-                      <input
-                        name="password"
-                        type="password"
-                        value={profile.password}
-                        disabled={!isEditing}
-                        onChange={handleInputChange}
-                        className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
-                      />
-                    </div>
-                    {showConfirmPassword && (
+                      
+              {/* Profile Dialog */}
+              <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-0" />
+                <div className="flex items-center justify-center min-h-screen p-4 z-10 relative">
+                  <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
+                    <Dialog.Title className="text-white text-2xl font-bold mb-4">Profile Details</Dialog.Title>
+                    <div className="space-y-4">
                       <div>
-                        <label className="text-white/70">Confirm Password</label>
+                        <label className="text-white/70">Email</label>
                         <input
-                          name="confirmPassword"
-                          type="password"
-                          value={profile.confirmPassword}
-                          onChange={handleInputChange}
-                          className="w-full p-2 rounded bg-white/20 text-white"
+                          type="email"
+                          value={profile.email}
+                          disabled
+                          className="w-full p-2 rounded bg-white/20 text-white cursor-not-allowed"
                         />
                       </div>
-                    )}
-                    {isEditing ? (
-                      <button
-                        onClick={saveProfile}
-                        className="w-full py-2 bg-green-500 hover:bg-green-600 transition rounded text-white font-semibold"
-                      >
-                        Save
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="w-full py-2 bg-blue-500 hover:bg-blue-600 transition rounded text-white font-semibold"
-                      >
-                        Edit
-                      </button>
-                    )}
-                    {showSavedMessage && (
-                      <p className="text-green-400 text-sm text-center mt-2 animate-fadeIn">✅ Changes saved!</p>
-                    )}
-                  </div>
-                </Dialog.Panel>
-              </div>
-            </Dialog>
-
-            {/* Active Tokens Dialog */}
-            <Dialog open={tokensOpen} onClose={() => setTokensOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-              <div className="flex items-center justify-center min-h-screen p-4">
-                <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-xl">
-                  <Dialog.Title className="text-white text-2xl font-bold mb-6">Your Active Tokens</Dialog.Title>
-                  <div className="space-y-4">
-                    {tokens.map((token) => (
-                      <div
-                        key={token.id}
-                        className="bg-white/20 text-white p-4 rounded-xl shadow flex justify-between items-center"
-                      >
-                        <div>
-                          <p className="font-bold">{token.business}</p>
-                          <p className="text-sm text-white/70">Token: {token.token}</p>
-                        </div>
-                        <p className="text-right text-sm">{token.time}</p>
+                      <div>
+                        <label className="text-white/70">Username</label>
+                        <input
+                          name="username"
+                          value={profile.username}
+                          disabled={!isEditing}
+                          onChange={handleInputChange}
+                          className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                        />
                       </div>
-                    ))}
-                  </div>
-                </Dialog.Panel>
-              </div>
-            </Dialog>
-            
+                      <div>
+                        <label className="text-white/70">Password</label>
+                        <input
+                          name="password"
+                          type="password"
+                          value={profile.password}
+                          disabled={!isEditing}
+                          onChange={handleInputChange}
+                          className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                        />
+                      </div>
+                      {showConfirmPassword && (
+                        <div>
+                          <label className="text-white/70">Confirm Password</label>
+                          <input
+                            name="confirmPassword"
+                            type="password"
+                            value={profile.confirmPassword}
+                            onChange={handleInputChange}
+                            className="w-full p-2 rounded bg-white/20 text-white"
+                          />
+                        </div>
+                      )}
+                      {isEditing ? (
+                        <button
+                          onClick={saveProfile}
+                          className="w-full py-2 bg-green-500 hover:bg-green-600 transition rounded text-white font-semibold"
+                        >
+                          Save
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setIsEditing(true)}
+                          className="w-full py-2 bg-blue-500 hover:bg-blue-600 transition rounded text-white font-semibold"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {showSavedMessage && (
+                        <p className="text-green-400 text-sm text-center mt-2 animate-fadeIn">✅ Changes saved!</p>
+                      )}
+                    </div>
+                  </Dialog.Panel>
+                </div>
+              </Dialog>
+
+              {/* Active Tokens Dialog */}
+              <Dialog open={tokensOpen} onClose={() => setTokensOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-0" />
+                <div className="flex items-center justify-center min-h-screen p-4 z-10 relative">
+                  <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-xl">
+                    <Dialog.Title className="text-white text-2xl font-bold mb-6">Your Active Tokens</Dialog.Title>
+                    <div className="space-y-4">
+                      {tokens.map((token) => (
+                        <div
+                          key={token.id}
+                          className="bg-white/20 text-white p-4 rounded-xl shadow flex justify-between items-center"
+                        >
+                          <div>
+                            <p className="font-bold">{token.business}</p>
+                            <p className="text-sm text-white/70">Token: {token.token}</p>
+                          </div>
+                          <p className="text-right text-sm">{token.time}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </Dialog.Panel>
+                </div>
+              </Dialog>
+
+
             </div>
           </div>
 
