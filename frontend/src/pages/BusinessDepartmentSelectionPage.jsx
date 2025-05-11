@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Preloader from "../components/Preloader";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -43,10 +43,6 @@ const BusinessDepartmentSelectionPage = () => {
     }
   };
 
-  const handleDeptSelect = (dept) => {
-    dispatch(setDepartment(dept));
-    navigate("/dashboard/business");
-  };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this department?")) {
@@ -86,7 +82,20 @@ const handleModalSubmit = async (e) => {
 
   const filteredDepartments = departments.filter((dept) =>
     dept.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const handleDeptSelect = useCallback(
+    (dept) => {
+      dispatch(setDepartment(dept));
+      navigate("/dashboard/business");
+    },
+    [dispatch, navigate]
   );
+
+   const filteredDepartments = useMemo(() => {
+    return departments.filter((dept) =>
+      dept.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, departments]);
 
   if (loading || !selectedBusiness) return <Preloader />;
 
