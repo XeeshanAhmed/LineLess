@@ -69,17 +69,16 @@ const BusinessDashboard = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  const handleLogout = async () => {
-        try {
-          await logoutBusiness();
-          dispatch(clearBusiness());
-          dispatch(resetSelection());
-          navigate("/login/business");
-        } catch (error) {
-          console.error("Logout failed:", error);
-        }
-   };
-
+const handleLogout = useCallback(async () => {
+    try {
+      await logoutBusiness();
+      dispatch(clearBusiness());
+      dispatch(resetSelection());
+      navigate("/login/business");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }, [dispatch, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

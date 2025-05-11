@@ -43,9 +43,11 @@ const UserDepartmentSelectionPage = () => {
     navigate("/dashboard/user");
   };
 
-  const filteredDepartments = departments.filter((dept) =>
-    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDepartments = useMemo(() => {
+    return departments.filter((dept) =>
+      dept.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [departments, searchTerm]);
 
   if (loading || !selectedBusiness) return <Preloader />;
 
