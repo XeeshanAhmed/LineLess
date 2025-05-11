@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getTokenQueue, updateTokenStatus } from "../services/tokenService";
 import { FaUserCircle } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import socket from "../services/socket/socket";
 
 const TokenQueue = () => {
   const [queue, setQueue] = useState([]);
@@ -17,6 +18,17 @@ const TokenQueue = () => {
     if (businessId && departmentId) {
       fetchQueue();
     }
+    socket.on("newTokenGenerated", (data) => {
+          alert(JSON.stringify(data));
+        if (
+          data.businessId === selectedBusiness.businessId &&
+          data.departmentId === selectedDepartment.departmentId
+        ) {
+          fetchQueue(); // 👈 Re-fetch updated queue
+        }
+      });
+    
+      return () => socket.off("tokenQueueUpdated");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessId, departmentId]);
 

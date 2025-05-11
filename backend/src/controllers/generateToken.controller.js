@@ -2,6 +2,8 @@ import Token from "../models/token.model.js";
 import TokenCounter from "../models/tokenCounter.model.js";
 import Business from "../models/business.model.js";
 import Department from "../models/department.model.js";
+import User from "../models/user.model.js"
+import sendNotificationEmail from "../utils/notificationEmail.js";
 
 const getLatestToken = async (req, res) => {
     try {
@@ -72,6 +74,13 @@ const generateToken = async (req, res) => {
       tokenNumber: counter.count
     });
 
+    const io = req.app.get("io");
+    io.emit("newTokenGenerated", {
+      businessId,
+      departmentId,
+      message: "New token generated",
+    });
+
     res.status(201).json({
       message: "Token generated successfully",
       token: {
@@ -124,6 +133,30 @@ const updateTokenStatus = async (req, res) => {
     );
 
     if (!updated) return res.status(404).json({ message: "Token not found" });
+
+    const queue = await Token.find({
+      businessId: updated.businessId,
+      departmentId: updated.departmentId,
+      status: "pending",
+    })
+      .sort({ createdAt: 1 }) // earliest first
+      .limit(4);
+    const thirdInLine = queue[2];
+    if (thirdInLine?.userId) {
+      const user = await User.findById(thirdInLine.userId);
+      const business = await Business.findById(updated.businessId);
+      const department = await Department.findById(updated.departmentId);
+
+      if (user?.email && business?.businessName && department?.name) {
+        sendNotificationEmail(user.email,"Get Ready! Your Turn is Near",business.businessName, department.name);
+      }
+    }
+
+    const io = req.app.get("io");
+    io.emit("tokenQueueUpdated", {
+      message: "Token queue updated",
+      token: updated
+    });
 
     res.status(200).json({ message: `Token ${status}`, token: updated });
   } catch (error) {
