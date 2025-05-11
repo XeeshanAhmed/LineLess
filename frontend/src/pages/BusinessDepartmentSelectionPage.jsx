@@ -80,8 +80,6 @@ const handleModalSubmit = async (e) => {
   fetchDepartments();
 };
 
-  const filteredDepartments = departments.filter((dept) =>
-    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
 
   const handleDeptSelect = useCallback(
     (dept) => {
