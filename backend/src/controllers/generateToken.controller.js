@@ -166,4 +166,46 @@ const updateTokenStatus = async (req, res) => {
 };
 
 
-export { getLatestToken,generateToken,getTokenQueue,updateTokenStatus };
+ const getActiveTokensForUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid userId' });
+    }
+
+    const tokens = await Token.find({
+      userId: userId,
+      status: 'pending'
+    })
+      .populate('businessId', 'businessName') 
+      .populate('departmentId', 'name') 
+      .sort({ createdAt: -1 });
+
+    const formattedTokens = tokens.map((token) => {
+      const time = new Date(token.createdAt).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return {
+        id: token._id,
+        business: token.businessId?.businessName || 'Unknown Business',
+        department: token.departmentId?.name || 'Unknown Department',
+        token: `T${token.tokenNumber}`,
+        time
+      };
+    });
+
+    return res.status(200).json(formattedTokens);
+
+  } catch (err) {
+    console.error('Error fetching active tokens:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
+
+
+export { getLatestToken,generateToken,getTokenQueue,updateTokenStatus,getActiveTokensForUser };

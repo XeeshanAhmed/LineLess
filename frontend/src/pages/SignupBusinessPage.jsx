@@ -8,13 +8,14 @@ import axios from "axios";
 const SignupBusinessPage = () => {
   const [showIntro, setShowIntro] = useState(true);
   const navigate = useNavigate();
-
+  const [generalTime, setGeneralTime] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [hasDepartments, setHasDepartments] = useState(false);
   const [departments, setDepartments] = useState([""]);
+  const [departmentTimes, setDepartmentTimes] = useState([""]);
 
   const [errors, setErrors] = useState({});
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -71,15 +72,23 @@ const SignupBusinessPage = () => {
     if (confirmPassword !== password) {
       newErrors.confirmPassword = "Passwords do not match.";
     }
+    if (!hasDepartments && (!generalTime || parseInt(generalTime) <= 0)) {
+      newErrors.averageProcessingTime =
+        "Please enter a valid general average processing time.";
+    }
 
     if (hasDepartments) {
       const emptyDepts = departments.filter((dept) => !dept.trim());
       const duplicates = departments.filter((item, idx) => departments.indexOf(item) !== idx);
+      const emptyTimes = departmentTimes.filter((time) => !time.trim() || isNaN(time) || parseInt(time) <= 0);
       if (emptyDepts.length > 0) {
         newErrors.departments = "All department fields must be filled.";
       }
       if (duplicates.length > 0) {
         newErrors.departments = "Department names must be unique.";
+      }
+      if (emptyTimes.length > 0) {
+        newErrors.departmentTimes = "Each department must have a valid average processing time.";
       }
     }
 
@@ -92,15 +101,23 @@ const SignupBusinessPage = () => {
     updated[index] = value;
     setDepartments(updated);
   };
-
+  const handleTimeChange = (index, value) => {
+  const updated = [...departmentTimes];
+  updated[index] = value;
+  setDepartmentTimes(updated);
+};
   const addDepartmentField = () => {
     setDepartments([...departments, ""]);
+    setDepartmentTimes([...departmentTimes, ""]);
   };
 
   const removeDepartmentField = (index) => {
-    const updated = [...departments];
-    updated.splice(index, 1);
-    setDepartments(updated);
+    const updatedDepartments = [...departments];
+    const updatedTimes = [...departmentTimes];
+    updatedDepartments.splice(index, 1);
+    updatedTimes.splice(index, 1);
+    setDepartments(updatedDepartments);
+    setDepartmentTimes(updatedTimes);
   };
 
   const handleSignupSubmit = async (e) => {
@@ -142,7 +159,14 @@ const SignupBusinessPage = () => {
         businessName,
         password,
         hasDepartments,
-        departments: hasDepartments ? departments.filter((d) => d.trim() !== "") : [],
+        // departments: hasDepartments ? departments.filter((d) => d.trim() !== "") : [],
+        departments: hasDepartments
+          ? departments.map((name, i) => ({
+              name,
+              averageProcessingTime: parseInt(departmentTimes[i] || "0"),
+            }))
+          : [],
+          averageProcessingTime: hasDepartments ? undefined : parseInt(generalTime || "0"),
       };
 
       const res = await signupBusiness(payload);
@@ -179,8 +203,8 @@ const SignupBusinessPage = () => {
         <Preloader />
       ) : (
         <div className="relative h-screen flex items-center justify-center overflow-hidden">
-           {/* Background Blobs */}
-           <div className="absolute inset-0 -z-10 overflow-hidden">
+          {/* Background Blobs */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
             <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-purple-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob"></div>
             <div className="absolute top-1/3 left-1/2 w-72 h-72 bg-pink-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-2000"></div>
             <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-30 rounded-full mix-blend-multiply blur-2xl animate-blob animation-delay-4000"></div>
@@ -188,18 +212,30 @@ const SignupBusinessPage = () => {
 
           {/* Floating Slogans */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="absolute top-[15%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">LineLess</div>
-            <div className="absolute top-[10%] right-[5%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">Say goodbye to waiting lines</div>
-            <div className="absolute bottom-[20%] left-[15%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-4000">Smart Tokening</div>
-            <div className="absolute bottom-[10%] right-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text animation-delay-6000">No More Queues</div>
+            <div className="absolute top-[15%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">
+              LineLess
+            </div>
+            <div className="absolute top-[10%] right-[5%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">
+              Say goodbye to waiting lines
+            </div>
+            <div className="absolute bottom-[20%] left-[15%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-4000">
+              Smart Tokening
+            </div>
+            <div className="absolute bottom-[10%] right-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text animation-delay-6000">
+              No More Queues
+            </div>
           </div>
 
           <div
             className={`bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-[90%] sm:w-[400px] z-10 max-h-[80vh] ${
-              hasDepartments ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : ""
+              hasDepartments
+                ? "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+                : ""
             }`}
           >
-            <h2 className="text-3xl font-bold mb-6 text-center">Business Sign Up</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">
+              Business Sign Up
+            </h2>
             <form className="space-y-4" onSubmit={handleSignupSubmit}>
               <div>
                 <input
@@ -209,7 +245,9 @@ const SignupBusinessPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass("email")}
                 />
-                {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
+                {errors.email && (
+                  <p className="text-red-400 text-sm">{errors.email}</p>
+                )}
               </div>
               <div>
                 <input
@@ -219,7 +257,9 @@ const SignupBusinessPage = () => {
                   onChange={(e) => setBusinessName(e.target.value)}
                   className={inputClass("businessName")}
                 />
-                {errors.businessName && <p className="text-red-400 text-sm">{errors.businessName}</p>}
+                {errors.businessName && (
+                  <p className="text-red-400 text-sm">{errors.businessName}</p>
+                )}
               </div>
               <div>
                 <input
@@ -229,7 +269,9 @@ const SignupBusinessPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className={inputClass("password")}
                 />
-                {errors.password && <p className="text-red-400 text-sm">{errors.password}</p>}
+                {errors.password && (
+                  <p className="text-red-400 text-sm">{errors.password}</p>
+                )}
               </div>
               <div>
                 <input
@@ -239,7 +281,11 @@ const SignupBusinessPage = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={inputClass("confirmPassword")}
                 />
-                {errors.confirmPassword && <p className="text-red-400 text-sm">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && (
+                  <p className="text-red-400 text-sm">
+                    {errors.confirmPassword}
+                  </p>
+                )}
               </div>
               <div className="flex items-center space-x-2 text-sm text-white">
                 <input
@@ -252,28 +298,65 @@ const SignupBusinessPage = () => {
               </div>
               {hasDepartments &&
                 departments.map((dept, idx) => (
-                  <div key={idx} className="relative">
+                  <div key={idx} className="flex gap-2 items-center mb-2">
                     <input
                       type="text"
                       placeholder={`Department ${idx + 1}`}
                       value={dept}
                       onChange={(e) => handleDeptChange(idx, e.target.value)}
-                      className={`w-full px-4 py-3 pr-10 bg-white/20 text-white rounded-lg outline-none focus:ring-2 ${
-                        errors.departments ? "ring-red-400" : "focus:ring-blue-400"
+                      className={`w-[190px] px-2 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 ${
+                        errors.departments
+                          ? "ring-red-400"
+                          : "focus:ring-blue-400"
+                      }`}
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="Avg Time (min)"
+                      value={departmentTimes[idx]}
+                      onChange={(e) => handleTimeChange(idx, e.target.value)}
+                      className={`w-[130px] px-2 py-3 bg-white/20 text-white rounded-lg outline-none focus:ring-2 ${
+                        errors.departmentTimes
+                          ? "ring-red-400"
+                          : "focus:ring-blue-400"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => removeDepartmentField(idx)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white hover:scale-110 transition duration-200 text-lg"
+                      className="text-white/60 hover:text-white text-xl px-2"
                     >
                       ×
                     </button>
                   </div>
                 ))}
-              {errors.departments && <p className="text-red-400 text-sm">{errors.departments}</p>}
+              {!hasDepartments && (
+                <div>
+                  <input
+                    type="number"
+                    placeholder="General Average Time (in minutes)"
+                    value={generalTime}
+                    onChange={(e) => setGeneralTime(e.target.value)}
+                    className={inputClass("averageProcessingTime")}
+                  />
+                  {errors.averageProcessingTime && (
+                    <p className="text-red-400 text-sm">
+                      {errors.averageProcessingTime}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {errors.departments && (
+                <p className="text-red-400 text-sm">{errors.departments}</p>
+              )}
               {hasDepartments && (
-                <button type="button" onClick={addDepartmentField} className="text-sm text-blue-300 underline">
+                <button
+                  type="button"
+                  onClick={addDepartmentField}
+                  className="text-sm text-blue-300 underline"
+                >
                   + Add another department
                 </button>
               )}
@@ -298,9 +381,12 @@ const SignupBusinessPage = () => {
           {showOtpModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
               <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl w-[90%] sm:w-[350px] text-white relative">
-                <h3 className="text-xl font-semibold mb-2 text-center">Verify Your Email</h3>
+                <h3 className="text-xl font-semibold mb-2 text-center">
+                  Verify Your Email
+                </h3>
                 <p className="text-sm text-center text-white/80 mb-4 px-2">
-                  We've sent a 4-digit OTP to <span className="font-medium">{maskEmail(email)}</span>.
+                  We've sent a 4-digit OTP to{" "}
+                  <span className="font-medium">{maskEmail(email)}</span>.
                 </p>
                 <input
                   type="text"
@@ -313,7 +399,11 @@ const SignupBusinessPage = () => {
                   className="w-full px-4 py-3 text-center text-xl tracking-widest bg-white/20 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 mb-2"
                   placeholder="____"
                 />
-                {otpError && <p className="text-red-400 text-sm text-center mb-2">{otpError}</p>}
+                {otpError && (
+                  <p className="text-red-400 text-sm text-center mb-2">
+                    {otpError}
+                  </p>
+                )}
                 <div className="flex flex-col gap-2 items-center justify-center mt-4">
                   <div className="flex gap-3">
                     <button
@@ -329,11 +419,11 @@ const SignupBusinessPage = () => {
                       Verify
                     </button>
                   </div>
-                 <button
+                  <button
                     onClick={handleResendOtp}
                     disabled={resendTimer > 0}
                     style={{
-                      cursor: resendTimer > 0 ? 'not-allowed' : 'pointer'
+                      cursor: resendTimer > 0 ? "not-allowed" : "pointer",
                     }}
                   >
                     Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}

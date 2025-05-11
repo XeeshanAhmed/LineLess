@@ -16,6 +16,10 @@ const departmentSchema = new mongoose.Schema({
   isDefault: {
     type: Boolean,
     default: false
+  },
+  averageProcessingTime: {
+    type: Number,
+    default: 0,
   }
 
 }, { timestamps: true });

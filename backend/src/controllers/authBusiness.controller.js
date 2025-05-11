@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const businessSignUp = async (req, res) => {
   try {
-    const { email, businessName, password, hasDepartments, departments } = req.body;
+    const { email, businessName, password, hasDepartments, departments, averageProcessingTime, } = req.body;
 
 
     const existingByEmail = await Business.findOne({ email });
@@ -32,16 +32,18 @@ const businessSignUp = async (req, res) => {
     if (hasDepartments && Array.isArray(departments) && departments.length > 0) {
       for (const dept of departments) {
         await Department.create({
-          name: dept.trim(),
+          name: dept.name.trim(),
           businessId: business._id,
-          isDefault: false
+          isDefault: false,
+          averageProcessingTime: dept.averageProcessingTime || 0,
         });
       }
     } else {
       const defaultDept = await Department.create({
         name: 'General',
         businessId: business._id,
-        isDefault: true
+        isDefault: true,
+        averageProcessingTime: averageProcessingTime || 0,
       });
 
       business.defaultDepartmentId = defaultDept._id;
@@ -114,7 +116,6 @@ const businessLogin = async (req, res) => {
 
 const getLoggedInBusiness = (req, res) => {
   const token = req.cookies.jwt;
-  console.log(token);
   if (!token) return res.status(401).json({ message: "Not authenticated" });
 
   try {

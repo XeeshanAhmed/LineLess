@@ -9,7 +9,7 @@
     FaTicketAlt,
   } from "react-icons/fa";
   import Preloader from "../components/Preloader";
-  import { generateTokenForUser, getLatestTokenNumber } from "../services/tokenService";
+  import { generateTokenForUser, getActiveTokensForUser, getLatestTokenNumber } from "../services/tokenService";
   import {getFeedbackForDepartment,submitFeedback as submitFeedbackAPI,} from "../services/feedbackService";  
   import { useSelector, useDispatch } from "react-redux";
   import { useNavigate } from "react-router-dom";
@@ -21,6 +21,8 @@
   import { formatDistanceToNow, parseISO, format } from "date-fns";
   import { getSnapshotData } from "../services/snapshotService";
   import socket from "../services/socket/socket";
+  import { getEstimatedTimeInPKT } from "../utils/time";
+
 
 
   const UserDashboard = () => {
@@ -46,6 +48,7 @@
     const [isEditing, setIsEditing] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [showSavedMessage, setShowSavedMessage] = useState(false);
+    const [activeTokens, setactiveTokens] = useState([])
 
 
     const [profile, setProfile] = useState({
@@ -73,7 +76,20 @@
       setShowSavedMessage(true);
       setTimeout(() => setShowSavedMessage(false), 3000);
     };
-  
+   useEffect(() => {
+    if (!user) return;
+
+    const fetchTokens = async () => {
+      try {
+        const data = await getActiveTokensForUser(user.id);
+        setactiveTokens(data);
+      } catch (err) {
+        console.error("Error fetching tokens", err);
+      }
+    };
+
+    fetchTokens();
+  }, [generatedToken]);
 
     useEffect(() => {
       if (activeTab === "feedback") {
@@ -128,14 +144,6 @@
 
   useEffect(() => {
     if (activeTab === "snapshot") {
-      // // Simulate snapshot data fetch
-      // const fakeSnapshot = {
-      //   currentToken: 37,
-      //   nextToken: 38,
-      //   estimatedServiceTime: 12,
-      //   tokensBeforeYou: 5,
-      // };
-      // setSnapshotData(fakeSnapshot);
       const fetchSnapshot = async () => {
         try {
           const data = await getSnapshotData(
@@ -179,6 +187,7 @@
           setLatestToken("Error");
           setLoading(false);
         }
+
       };
       fetchLatestToken();
     }
@@ -299,104 +308,100 @@
               </div>
             )}
 
-                      
-              {/* Profile Dialog */}
-              <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-0" />
-                <div className="flex items-center justify-center min-h-screen p-4 z-10 relative">
-                  <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
-                    <Dialog.Title className="text-white text-2xl font-bold mb-4">Profile Details</Dialog.Title>
-                    <div className="space-y-4">
+            {/* Profile Dialog */}
+            <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-screen p-4">
+                <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
+                  <Dialog.Title className="text-white text-2xl font-bold mb-4">Profile Details</Dialog.Title>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-white/70">Email</label>
+                      <input
+                        type="email"
+                        value={profile.email}
+                        disabled
+                        className="w-full p-2 rounded bg-white/20 text-white cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white/70">Username</label>
+                      <input
+                        name="username"
+                        value={profile.username}
+                        disabled={!isEditing}
+                        onChange={handleInputChange}
+                        className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white/70">Password</label>
+                      <input
+                        name="password"
+                        type="password"
+                        value={profile.password}
+                        disabled={!isEditing}
+                        onChange={handleInputChange}
+                        className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                      />
+                    </div>
+                    {showConfirmPassword && (
                       <div>
-                        <label className="text-white/70">Email</label>
+                        <label className="text-white/70">Confirm Password</label>
                         <input
-                          type="email"
-                          value={profile.email}
-                          disabled
-                          className="w-full p-2 rounded bg-white/20 text-white cursor-not-allowed"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-white/70">Username</label>
-                        <input
-                          name="username"
-                          value={profile.username}
-                          disabled={!isEditing}
-                          onChange={handleInputChange}
-                          className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-white/70">Password</label>
-                        <input
-                          name="password"
+                          name="confirmPassword"
                           type="password"
-                          value={profile.password}
-                          disabled={!isEditing}
+                          value={profile.confirmPassword}
                           onChange={handleInputChange}
-                          className={`w-full p-2 rounded bg-white/20 text-white ${!isEditing ? "cursor-not-allowed" : ""}`}
+                          className="w-full p-2 rounded bg-white/20 text-white"
                         />
                       </div>
-                      {showConfirmPassword && (
+                    )}
+                    {isEditing ? (
+                      <button
+                        onClick={saveProfile}
+                        className="w-full py-2 bg-green-500 hover:bg-green-600 transition rounded text-white font-semibold"
+                      >
+                        Save
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="w-full py-2 bg-blue-500 hover:bg-blue-600 transition rounded text-white font-semibold"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {showSavedMessage && (
+                      <p className="text-green-400 text-sm text-center mt-2 animate-fadeIn">✅ Changes saved!</p>
+                    )}
+                  </div>
+                </Dialog.Panel>
+              </div>
+            </Dialog>
+
+            {/* Active Tokens Dialog */}
+            <Dialog open={tokensOpen} onClose={() => setTokensOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-screen p-4">
+                <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-xl">
+                  <Dialog.Title className="text-white text-2xl font-bold mb-6">Your Active Tokens</Dialog.Title>
+                  <div className="space-y-4">
+                    {activeTokens.map((token) => (
+                      <div
+                        key={token.id}
+                        className="bg-white/20 text-white p-4 rounded-xl shadow flex justify-between items-center"
+                      >
                         <div>
-                          <label className="text-white/70">Confirm Password</label>
-                          <input
-                            name="confirmPassword"
-                            type="password"
-                            value={profile.confirmPassword}
-                            onChange={handleInputChange}
-                            className="w-full p-2 rounded bg-white/20 text-white"
-                          />
+                          <p className="font-bold">{token.business} - {token.department}</p>
+                          <p className="text-sm text-white/70">Token: {token.token}</p>
                         </div>
-                      )}
-                      {isEditing ? (
-                        <button
-                          onClick={saveProfile}
-                          className="w-full py-2 bg-green-500 hover:bg-green-600 transition rounded text-white font-semibold"
-                        >
-                          Save
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="w-full py-2 bg-blue-500 hover:bg-blue-600 transition rounded text-white font-semibold"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      {showSavedMessage && (
-                        <p className="text-green-400 text-sm text-center mt-2 animate-fadeIn">✅ Changes saved!</p>
-                      )}
-                    </div>
-                  </Dialog.Panel>
-                </div>
-              </Dialog>
-
-              {/* Active Tokens Dialog */}
-              <Dialog open={tokensOpen} onClose={() => setTokensOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-0" />
-                <div className="flex items-center justify-center min-h-screen p-4 z-10 relative">
-                  <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-xl">
-                    <Dialog.Title className="text-white text-2xl font-bold mb-6">Your Active Tokens</Dialog.Title>
-                    <div className="space-y-4">
-                      {tokens.map((token) => (
-                        <div
-                          key={token.id}
-                          className="bg-white/20 text-white p-4 rounded-xl shadow flex justify-between items-center"
-                        >
-                          <div>
-                            <p className="font-bold">{token.business}</p>
-                            <p className="text-sm text-white/70">Token: {token.token}</p>
-                          </div>
-                          <p className="text-right text-sm">{token.time}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </Dialog.Panel>
-                </div>
-              </Dialog>
-
-
+                        <p className="text-right text-sm">{token.time}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Dialog.Panel>
+              </div>
+            </Dialog>
+            
             </div>
           </div>
 
@@ -484,7 +489,7 @@
                     </div>
                     <div className="p-4 rounded-xl bg-purple-600 text-white text-center">
                     <p className="text-sm">Est. Time</p>
-                    <p className="text-3xl font-bold">{snapshotData.estimatedServiceTime} min</p>
+                    <p className="text-3xl font-bold">{getEstimatedTimeInPKT(snapshotData.estimatedWaitTime)}</p>
                     </div>
                     <div className="p-4 rounded-xl bg-yellow-600 text-white text-center">
                     <p className="text-sm">Tokens Before You</p>
@@ -493,29 +498,6 @@
                     </div>
                     </div>
                   )}
-
-                  {/* {activeTab === "snapshot" && (
-                    <div className="w-full grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {["Registration", "Customer Care", "Billing"].map((dept, index) => (
-                    <div
-                    key={index}
-                    className="p-6 rounded-xl bg-white/10 border border-white/20 shadow-md backdrop-blur-md"
-                    >
-                    <h3 className="text-xl font-bold text-cyan-300 mb-2">{dept}</h3>
-                    <p className="text-white/80">
-                      <strong>Now Serving:</strong> #{Math.floor(Math.random() * 90) + 1}
-                    </p>
-                    <p className="text-white/80">
-                      <strong>Tokens Left:</strong> {Math.floor(Math.random() * 30) + 5}
-                    </p>
-                    <div className="mt-2 text-sm text-white/50 italic">
-                      Avg Wait: {Math.floor(Math.random() * 8) + 2} mins
-                    </div>
-                    </div>
-                  ))}
-                  </div>
-                )} */}
-
             {/* 💬 Feedback Tab */}
             {activeTab === "feedback" && (
             <div className="w-full max-w-5xl mx-auto space-y-8">

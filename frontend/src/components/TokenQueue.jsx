@@ -3,6 +3,8 @@ import { getTokenQueue, updateTokenStatus } from "../services/tokenService";
 import { FaUserCircle } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import socket from "../services/socket/socket";
+import { resetTokenCounter } from "../services/tokenCounterService";
+
 
 const TokenQueue = () => {
   const [queue, setQueue] = useState([]);
@@ -19,7 +21,6 @@ const TokenQueue = () => {
       fetchQueue();
     }
     socket.on("newTokenGenerated", (data) => {
-          alert(JSON.stringify(data));
         if (
           data.businessId === selectedBusiness.businessId &&
           data.departmentId === selectedDepartment.departmentId
@@ -28,7 +29,7 @@ const TokenQueue = () => {
         }
       });
     
-      return () => socket.off("tokenQueueUpdated");
+      return () => socket.off("newTokenGenerated");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessId, departmentId]);
 
@@ -76,13 +77,17 @@ const TokenQueue = () => {
     <div className="max-w-5xl mx-auto space-y-12">
       {/* Current Token */}
       <div className="bg-gradient-to-br from-[#1f1f25] to-[#1a1a1f] border border-white/10 rounded-3xl p-10 text-center shadow-xl">
-        <p className="text-white/60 text-base uppercase tracking-widest">Now Serving</p>
+        <p className="text-white/60 text-base uppercase tracking-widest">
+          Now Serving
+        </p>
         <h1 className="text-7xl font-bold text-cyan-400 mt-4 drop-shadow-lg">
           #{currentToken.tokenNumber}
         </h1>
         <div className="flex justify-center items-center gap-3 mt-6 text-white/80 text-lg">
           <FaUserCircle className="text-white/60 text-2xl" />
-          <span className="font-medium">{currentToken.userId?.username || "Unknown"}</span>
+          <span className="font-medium">
+            {currentToken.userId?.username || "Unknown"}
+          </span>
         </div>
 
         {/* Actions */}
@@ -99,13 +104,36 @@ const TokenQueue = () => {
           >
             ⏭ Skip Token
           </button>
+        
+        <button
+          onClick={async () => {
+            const confirmReset = confirm(
+              "Are you sure you want to reset token count?"
+            );
+            if (!confirmReset) return;
+
+            try {
+              await resetTokenCounter(businessId, departmentId);
+              alert("Token count reset successfully.");
+              fetchQueue(); // optional: re-fetch tokens if logic changes
+            } catch (err) {
+              console.error("Failed to reset token count", err);
+              alert("Failed to reset token count.");
+            }
+          }}
+          className="px-8 py-3 rounded-full bg-yellow-500/20 hover:bg-yellow-400/20 text-yellow-300 border border-yellow-300/30 backdrop-blur transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+        >
+          🔁 Reset Token Count
+        </button>
         </div>
       </div>
 
       {/* Upcoming Tokens */}
       {waitingTokens.length > 0 && (
         <div className="space-y-6">
-          <h2 className="text-white/80 text-2xl font-semibold text-center">Upcoming Tokens</h2>
+          <h2 className="text-white/80 text-2xl font-semibold text-center">
+            Upcoming Tokens
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {waitingTokens.map((token) => (
               <div

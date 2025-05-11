@@ -83,7 +83,13 @@ export const getTokenAnalytics = async (req, res) => {
       if (!mongoose.Types.ObjectId.isValid(businessId) || !mongoose.Types.ObjectId.isValid(departmentId)) {
         return res.status(400).json({ error: 'Invalid businessId or departmentId' });
       }
-  
+      const department = await Department.findById(departmentId);
+
+      if (!department) {
+        return res.status(404).json({ error: "Department not found" });
+      }
+
+      const avgProcessingTime = department.avgProcessingTime;
       // Get current date in local timezone
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Local midnight
@@ -153,7 +159,8 @@ export const getTokenAnalytics = async (req, res) => {
   
       res.status(200).json({
         totalTokens,
-        tokenData
+        tokenData,
+        avgProcessingTime
       });
   
     } catch (err) {
