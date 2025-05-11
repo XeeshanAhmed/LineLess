@@ -12,6 +12,8 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import snapshotRoutes from './routes/snapshot.route.js';
 import { authenticate } from "./middleware/auth.middleware.js";
 import { authorizeRoles } from "./middleware/roleGuard.middleware.js";
+import http from 'http';
+import {Server} from "socket.io"
 
 
 import cors from "cors";
@@ -20,6 +22,16 @@ import cors from "cors";
 dotenv.config();
 const app=express();
 const PORT=process.env.PORT||8000;
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+      origin: "http://localhost:5173",
+      credentials: true,
+    },
+  });
+
+app.set("io", io);
 
 app.use(cors({
     origin: "http://localhost:5173", 
@@ -44,8 +56,15 @@ app.get('/',(req,res)=>{
 });
 connectDB()
 .then(()=>{
-    app.listen(PORT,()=>{
+    server.listen(PORT,()=>{
         console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
 });
+io.on("connection", (socket) => {
+    console.log("🔌 New client connected:", socket.id);
+  
+    socket.on("disconnect", () => {
+      console.log("❌ Client disconnected:", socket.id);
+    });
+  });
 

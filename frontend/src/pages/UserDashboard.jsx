@@ -20,6 +20,7 @@
   import { Dialog } from "@headlessui/react";
   import { formatDistanceToNow, parseISO, format } from "date-fns";
   import { getSnapshotData } from "../services/snapshotService";
+  import socket from "../services/socket/socket";
 
 
   const UserDashboard = () => {
@@ -148,6 +149,11 @@
         }
       };
       fetchSnapshot();
+      socket.on("tokenQueueUpdated", () => {
+        console.log("han bhai event tu fire hwa h mene function call krdi h")
+        fetchSnapshot();
+      });
+      return () => socket.off("tokenQueueUpdated");
     }
   }, [activeTab]);
 
