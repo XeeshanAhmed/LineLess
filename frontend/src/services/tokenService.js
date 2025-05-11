@@ -22,3 +22,8 @@ export const updateTokenStatus = async (tokenId, status) => {
   const res = await axios.put(`${BASE_URL}/update-status/${tokenId}`, { status });
   return res.data;
 };
+
+export const getActiveTokensForUser = async (userId) => {
+  const res = await axios.get(`${BASE_URL}/active/${userId}`);
+  return res.data;
+};

@@ -60,7 +60,6 @@ const login=async (req,res)=>{
 
 const getLoggedInUser = (req, res) => {
     const token = req.cookies.jwt;
-    console.log(token);
     if (!token) return res.status(401).json({ message: 'Not authenticated' });
   
     try {
