@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect , useCallback,useMemo} from "react";
 import { useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
 import { fetchBusinesses } from "../services/fetchBusinessService";
@@ -36,21 +36,28 @@ const BusinessSelectionPage = () => {
   }, []);
   
 
-  const filteredBusinesses = businesses.filter((business) =>
-    business.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const handleSelect = async (business) => {
+    const filteredBusinesses = useMemo(() => {
+    return businesses.filter((business) =>
+      business.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, businesses]);
+  const handleSelect = useCallback(async (business) => {
     dispatch(setBusiness(business));
-  
-    if (!business.hasDepartments) {
-      const departments= await getDepartmentsByBusinessId(business.businessId);
-      dispatch(setDepartment(departments[0]))
-      navigate("/dashboard/user");
 
+    if (!business.hasDepartments) {
+      try {
+        const departments = await getDepartmentsByBusinessId(business.businessId);
+        if (departments.length > 0) {
+          dispatch(setDepartment(departments[0]));
+        }
+        navigate("/dashboard/user");
+      } catch (error) {
+        console.error("Failed to load departments", error);
+      }
     } else {
       navigate("/select-user-department");
     }
-  };
+  }, [dispatch, navigate]);
   
 
   if (loading) return <Preloader />;

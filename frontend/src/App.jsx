@@ -78,7 +78,7 @@ function App() {
 
   {/* 🔒 Business Routes */}
   <Route path="/dashboard/business" element={
-    <BusinessDashboard />
+     <PrivateRoute allowedRole="business"><BusinessDashboard /></PrivateRoute>
   } />
   <Route path="/select-business-department" element={
     <PrivateRoute allowedRole="business"><BusinessDepartmentSelectionPage /></PrivateRoute>
