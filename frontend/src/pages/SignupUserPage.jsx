@@ -3,6 +3,7 @@ import { signupUser } from "../services/authUserService";
 import { useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const SignupUserPage = () => {
   const [showIntro, setShowIntro] = useState(true);
@@ -22,6 +23,10 @@ const SignupUserPage = () => {
 
   const [otpTimeout, setOtpTimeout] = useState(60);
   const [resendDisabled, setResendDisabled] = useState(true);
+  const [otpExpired, setOtpExpired] = useState(false);
+  const [otpSentTime, setOtpSentTime] = useState(null);
+  const [resendTimer, setResendTimer] = useState(30);
+
 
   const navigate = useNavigate();
 
@@ -30,21 +35,27 @@ const SignupUserPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    if (showOtpModal && otpTimeout > 0) {
+   useEffect(() => {
+    if (showOtpModal && resendTimer > 0) {
       const interval = setInterval(() => {
-        setOtpTimeout((prev) => prev - 1);
+        setResendTimer((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
-    } else if (otpTimeout <= 0) {
-      setResendDisabled(false);
     }
-  }, [showOtpModal, otpTimeout]);
+  }, [showOtpModal, resendTimer]);
+  useEffect(() => {
+      if (otpSentTime) {
+        const timeout = setTimeout(() => {
+          setOtpExpired(true);
+          toast.error("OTP has expired. Please request a new one.");
+        }, 30000); // 2 minutes
+        return () => clearTimeout(timeout);
+      }
+    }, [otpSentTime]);
 
-  const getMaskedEmail = (email) => {
+  const maskEmail = (email) => {
     const [user, domain] = email.split("@");
-    const maskedUser = user[0] + "*".repeat(user.length - 1);
-    return `${maskedUser}@${domain}`;
+    return `${user[0]}***@${domain}`;
   };
 
   const handleSignupSubmit = async (e) => {
@@ -78,45 +89,65 @@ const SignupUserPage = () => {
     }
 
     try {
+      
+
+      const otpRes = await axios.post(
+        "http://localhost:5000/api/userAuth/send-otp",
+        { email }
+      );
+      const otpCode = otpRes.data.otp; // For development, not for production
+      console.log(otpCode);
+      setGeneratedOtp(otpCode);
+      setOtpSentTime(Date.now());
+      setOtpExpired(false);
+      setResendTimer(30);
+      setShowOtpModal(true);
+      toast.success("OTP sent to your email. Please verify.");
+    } catch (error) {
+      console.log("error ywe h",error)
+      const msg = error.response?.data?.message || "Failed to send OTP.";
+      setSignupError(msg);
+    }
+  };
+
+  const handleOtpVerify =async () => {
+    if (otpExpired) {
+      setOtpError("OTP has expired. Request a new one.");
+      toast.error("OTP expired.");
+      return;
+    }
+    if (otp !== generatedOtp) {
+      setOtpError("Incorrect OTP. Please try again.");
+      toast.error("Incorrect OTP.");
+      return;
+    }
+    try {
       const response = await signupUser({
         email,
         password,
         username,
         role: "user"
       });
-
-      const fakeOtp = "1234"; // Simulating OTP generation
-      setGeneratedOtp(fakeOtp);
-      setShowOtpModal(true);
-      setOtpTimeout(60);
-      setResendDisabled(true);
-
-      toast.success("OTP sent to your email. Please verify.");
-    } catch (error) {
-      const msg = error.response?.data?.message || "Signup failed.";
-      setSignupError(msg);
-    }
-  };
-
-  const handleOtpVerify = () => {
-    if (otp === generatedOtp) {
+      toast.success("OTP Verified! User account created.");
       setShowOtpModal(false);
-      toast.success("OTP Verified! Account created successfully!");
       navigate("/login/user");
-    } else {
-      setOtpError("Incorrect OTP. Please try again.");
-      toast.error("Incorrect OTP. Please try again.");
+    } catch (error) {
+       toast.error(error.message);
     }
   };
 
-  const handleResendOtp = () => {
-    const newOtp = "1234"; // Simulating new OTP generation
-    setGeneratedOtp(newOtp);
-    setOtp("");
-    setOtpError("");
-    setOtpTimeout(60);
-    setResendDisabled(true);
-    toast.success("New OTP has been sent!");
+  const handleResendOtp =async () => {
+     try {
+         const otpRes = await axios.post("http://localhost:5000/api/userAuth/send-otp", { email });
+         setGeneratedOtp(otpRes.data.otp);
+         setOtp("");
+         setOtpExpired(false);
+         setOtpSentTime(Date.now());
+         setResendTimer(30);
+         toast.info("A new OTP has been sent.");
+       } catch (err) {
+         toast.error("Failed to resend OTP.");
+       }
   };
 
   return (
@@ -217,44 +248,43 @@ const SignupUserPage = () => {
               <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl w-[90%] sm:w-[350px] text-white relative">
                 <h3 className="text-xl font-semibold mb-2 text-center">Verify Your Email</h3>
                 <p className="text-sm text-center text-white/80 mb-4 px-2">
-                  We've sent a 4-digit OTP to <span className="font-medium">{getMaskedEmail(email)}</span>. Please enter it below.
+                  We've sent a 4-digit OTP to <span className="font-medium">{maskEmail(email)}</span>.
                 </p>
                 <input
                   type="text"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) => {
+                    setOtp(e.target.value);
+                    setOtpError("");
+                  }}
                   maxLength={4}
                   className="w-full px-4 py-3 text-center text-xl tracking-widest bg-white/20 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 mb-2"
                   placeholder="____"
                 />
                 {otpError && <p className="text-red-400 text-sm text-center mb-2">{otpError}</p>}
-                <p className="text-sm text-center text-white/60 mt-1">
-                  {otpTimeout > 0 ? `OTP expires in ${otpTimeout}s` : "OTP expired."}
-                </p>
-                <div className="flex justify-center gap-4 mt-4">
-                  <button
-                    onClick={() => setShowOtpModal(false)}
-                    className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleOtpVerify}
-                    className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
-                    disabled={otpTimeout <= 0}
-                  >
-                    Verify
-                  </button>
-                </div>
-                <div className="mt-4 text-center">
-                  <button
+                <div className="flex flex-col gap-2 items-center justify-center mt-4">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowOtpModal(false)}
+                      className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleOtpVerify}
+                      className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                 <button
                     onClick={handleResendOtp}
-                    className={`text-sm underline ${
-                      resendDisabled ? "text-white/40 cursor-not-allowed" : "text-blue-300 hover:text-blue-400"
-                    }`}
-                    disabled={resendDisabled}
+                    disabled={resendTimer > 0}
+                    style={{
+                      cursor: resendTimer > 0 ? 'not-allowed' : 'pointer'
+                    }}
                   >
-                    Resend OTP
+                    Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}
                   </button>
                 </div>
               </div>
