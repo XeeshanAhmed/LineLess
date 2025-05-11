@@ -329,12 +329,14 @@ const SignupBusinessPage = () => {
                       Verify
                     </button>
                   </div>
-                  <button
+                 <button
                     onClick={handleResendOtp}
                     disabled={resendTimer > 0}
-                    className={`text-sm text-blue-300 underline disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={{
+                      cursor: resendTimer > 0 ? 'not-allowed' : 'pointer'
+                    }}
                   >
-                    {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+                    Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}
                   </button>
                 </div>
               </div>
