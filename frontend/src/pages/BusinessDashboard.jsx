@@ -156,8 +156,8 @@ const BusinessDashboard = () => {
         </div>
 
         {/* Profile Dialog */}
-        <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen p-4">
+       <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen p-4 bg-black/30 backdrop-blur-sm">
             <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
               <Dialog.Title className="text-white text-2xl font-bold mb-4">Profile Details</Dialog.Title>
               <div className="space-y-4">
@@ -225,6 +225,7 @@ const BusinessDashboard = () => {
             </Dialog.Panel>
           </div>
         </Dialog>
+
 
         {/* Dynamic Content */}
         <div className="mt-20">
