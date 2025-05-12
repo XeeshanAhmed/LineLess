@@ -12,7 +12,7 @@ export const resetTokenCounter = async (req, res) => {
 
     const counter = await TokenCounter.findOneAndUpdate(
       { businessId, departmentId },
-      { count: 1 },
+      { count: 0 },
       { new: true }
     );
 
