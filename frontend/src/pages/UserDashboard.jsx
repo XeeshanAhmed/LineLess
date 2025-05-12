@@ -312,7 +312,7 @@
 
       {/* Profile Dialog */}
       <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-        <div className="flex items-center justify-center min-h-screen p-3 sm:p-4">
+        <div className="flex items-center justify-center min-h-screen p-3 sm:p-4 bg-black/30 backdrop-blur-sm">
           <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md">
             <Dialog.Title className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Profile Details</Dialog.Title>
             <div className="space-y-3 sm:space-y-4">
@@ -383,7 +383,7 @@
 
       {/* Active Tokens Dialog */}
       <Dialog open={tokensOpen} onClose={() => setTokensOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-        <div className="flex items-center justify-center min-h-screen p-3 sm:p-4">
+        <div className="flex items-center justify-center min-h-screen p-3 sm:p-4 bg-black/30 backdrop-blur-sm">
           <Dialog.Panel className="bg-white/10 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-10 border border-white/20 shadow-2xl w-full max-w-md sm:max-w-xl">
             <Dialog.Title className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Your Active Tokens</Dialog.Title>
             <div className="space-y-3 sm:space-y-4">
