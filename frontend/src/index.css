@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* 🎨 Animated Blob Background */
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+.animate-blob {
+  animation: blob 8s infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+.animation-delay-8000 {
+  animation-delay: 8s;
+}
+
+/* 🌬️ Floating Text for Brand Slogans */
+@keyframes floating-text {
+  0% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.1;
+  }
+}
+.animate-floating-text {
+  animation: floating-text 6s ease-in-out infinite;
+}
+
+/* 💨 Generic Float for Titles etc */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ✨ Fade In Utility */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 2s ease-in-out;
+}
+
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
