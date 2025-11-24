@@ -3,80 +3,8 @@ import Token from '../models/token.model.js';  // Adjust the path as needed
 import Feedback from '../models/feedback.model.js';  // Adjust the path as needed
 import Department from '../models/department.model.js';
 
-// Controller for token analytics
-// export const getTokenAnalytics = async (req, res) => {
-//     try {
-//       const { businessId, departmentId } = req.params;
-      
-//       if (!mongoose.Types.ObjectId.isValid(businessId) || !mongoose.Types.ObjectId.isValid(departmentId)) {
-//         return res.status(400).json({ error: 'Invalid businessId or departmentId' });
-//       }
-  
-//       const today = new Date();
-//       today.setHours(0, 0, 0, 0); // Start of today
-  
-//       const sevenDaysAgo = new Date(today);
-//       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // 7 days total (6 days ago + today)
-  
-//       // 1. Get total token count
-//       const totalTokens = await Token.countDocuments({
-//         businessId: new mongoose.Types.ObjectId(businessId),
-//         departmentId: new mongoose.Types.ObjectId(departmentId)
-//       });
-  
-//       // 2. Get daily counts for last 7 days
-//       const dailyTokens = await Token.aggregate([
-//         {
-//           $match: {
-//             businessId: new mongoose.Types.ObjectId(businessId),
-//             departmentId: new mongoose.Types.ObjectId(departmentId),
-//             createdAt: {
-//               $gte: sevenDaysAgo,
-//               $lte: new Date(today.getTime() + 86400000 - 1) // End of today
-//             }
-//           }
-//         },
-//         {
-//           $group: {
-//             _id: {
-//               $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
-//             },
-//             count: { $sum: 1 }
-//           }
-//         }
-//       ]);
-  
-//       // 3. Generate all dates in the range with proper labels
-//       const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-//       const tokenData = [];
-  
-//       for (let i = 0; i < 7; i++) {
-//         const date = new Date(today);
-//         date.setDate(today.getDate() - (6 - i)); // From oldest to newest
-        
-//         const dateStr = date.toISOString().split('T')[0];
-//         const dayName = weekdays[date.getDay()];
-//         const formattedDate = `${dayName} ${date.getDate()}/${date.getMonth() + 1}`;
-  
-//         const foundDay = dailyTokens.find(d => d._id === dateStr);
-        
-//         tokenData.push({
-//           day: formattedDate,
-//           date: dateStr,
-//           tokens: foundDay ? foundDay.count : 0
-//         });
-//       }
-  
-//       res.status(200).json({
-//         totalTokens,
-//         tokenData
-//       });
-  
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ error: 'Server error' });
-//     }
-//   };
+
+
 export const getTokenAnalytics = async (req, res) => {
     try {
       const { businessId, departmentId } = req.params;
@@ -90,21 +18,18 @@ export const getTokenAnalytics = async (req, res) => {
         return res.status(404).json({ error: "Department not found" });
       }
 
-      const avgProcessingTime = department.avgProcessingTime;
-      // Get current date in local timezone
+      const avgProcessingTime = department.averageProcessingTime;
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Local midnight
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
       
       const sevenDaysAgo = new Date(today);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // 7 days total (6 days ago + today)
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); 
   
-      // 1. Get total token count
       const totalTokens = await Token.countDocuments({
         businessId: new mongoose.Types.ObjectId(businessId),
         departmentId: new mongoose.Types.ObjectId(departmentId)
       });
   
-      // 2. Get daily counts for last 7 days (using local time)
       const dailyTokens = await Token.aggregate([
         {
           $match: {
@@ -112,13 +37,12 @@ export const getTokenAnalytics = async (req, res) => {
             departmentId: new mongoose.Types.ObjectId(departmentId),
             createdAt: {
               $gte: sevenDaysAgo,
-              $lte: new Date(today.getTime() + 86400000 - 1) // End of today
+              $lte: new Date(today.getTime() + 86400000 - 1) 
             }
           }
         },
         {
           $project: {
-            // Convert to local date string without timezone offset
             localDate: {
               $dateToString: {
                 format: "%Y-%m-%d",
@@ -136,15 +60,13 @@ export const getTokenAnalytics = async (req, res) => {
         }
       ]);
   
-      // 3. Generate all dates in the range with proper labels
       const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const tokenData = [];
   
       for (let i = 0; i < 7; i++) {
         const date = new Date(today);
-        date.setDate(today.getDate() - (6 - i)); // From oldest to newest
-        
-        // Format date string without timezone issues
+        date.setDate(today.getDate() - (6 - i));
+
         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         const dayName = weekdays[date.getDay()];
         const formattedDate = `${dayName} ${date.getDate()}/${date.getMonth() + 1}`;

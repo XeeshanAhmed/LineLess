@@ -25,10 +25,10 @@ export const getSnapshotData = async (req, res) => {
 
     if (allPending.length === 0) {
       return res.status(200).json({
-        currentToken: "Queue is empty",
-        nextToken: "Queue is empty",
+        currentToken: "---",
+        nextToken: "---",
         estimatedWaitTime: 0,
-        tokensBeforeYou: 0,
+        tokensBeforeYou: "---",
       });
     }
 
@@ -44,7 +44,7 @@ export const getSnapshotData = async (req, res) => {
     let estimatedWaitTime;
 
     if (!userToken) {
-      tokensBeforeYou = "You don't have a token";
+      tokensBeforeYou = "---";
       estimatedWaitTime = 0;
     } else {
       tokensBeforeYou = allPending.findIndex(
@@ -57,7 +57,7 @@ export const getSnapshotData = async (req, res) => {
     return res.status(200).json({
       currentToken: currentTokenNumber,
       nextToken: nextTokenNumber,
-      estimatedWaitTime, // ← this is now per-user based
+      estimatedWaitTime,
       tokensBeforeYou,
     });
   } catch (error) {

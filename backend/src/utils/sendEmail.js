@@ -132,14 +132,14 @@ const sendEmail = async (to, subject, text, otpCode) => {
   <body>
     <div class="email-container">
       <div class="header">
-        <h1>LineLess</h1>
+        <h1>QTrack</h1>
         <p>Your Gateway to Seamless Experiences</p>
       </div>
       
       <div class="content">
         <p>Hello there,</p>
         
-        <p>Welcome to <span class="highlight">LineLess</span> – where innovation meets simplicity. We're here to make your digital journey smooth and secure.</p>
+        <p>Welcome to <span class="highlight">QTrack</span> – where innovation meets simplicity. We're here to make your digital journey smooth and secure.</p>
         
         <p>To continue, please verify your identity using the OTP below:</p>
         
@@ -157,11 +157,11 @@ const sendEmail = async (to, subject, text, otpCode) => {
         
         <p>If you didn't request this, please ignore this email or contact support.</p>
         
-        <p>Stay secure,<br>The <span class="highlight">LineLess</span> Team</p>
+        <p>Stay secure,<br>The <span class="highlight">QTrack</span> Team</p>
       </div>
       
       <div class="footer">
-        © ${new Date().getFullYear()} LineLess. All rights reserved.<br>
+        © ${new Date().getFullYear()} QTrack. All rights reserved.<br>
         <a href="#" style="color: #6e45e2;">Help Center</a> | <a href="#" style="color: #fff;">Privacy Policy</a>
       </div>
     </div>
@@ -170,9 +170,9 @@ const sendEmail = async (to, subject, text, otpCode) => {
   `;
 
   const mailOptions = {
-    from: `"LineLess" <${process.env.EMAIL_USER}>`,
+    from: `"QTrack" <${process.env.EMAIL_USER}>`,
     to,
-    subject: subject || "Your LineLess OTP Code",
+    subject: subject || "Your QTrack OTP Code",
     text: text || `Your OTP is: ${otpCode}`,
     html: htmlContent
   };
