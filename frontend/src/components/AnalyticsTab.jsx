@@ -81,7 +81,7 @@ return (
       </div>
       <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl shadow-md sm:shadow-lg text-white">
         <h3 className="text-base sm:text-lg md:text-xl font-semibold">Average Wait Time</h3>
-        <p className="text-2xl sm:text-3xl mt-1 sm:mt-2 font-bold text-yellow-300">{}</p>
+        <p className="text-2xl sm:text-3xl mt-1 sm:mt-2 font-bold text-yellow-300">{averageProcessingTime? averageProcessingTime:"-"}</p>
       </div>
       <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl shadow-md sm:shadow-lg text-white">
         <h3 className="text-base sm:text-lg md:text-xl font-semibold">Feedbacks Received</h3>

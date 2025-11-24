@@ -213,7 +213,7 @@ const SignupBusinessPage = () => {
           {/* Floating Slogans */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <div className="absolute top-[15%] left-[10%] text-5xl font-bold text-white opacity-10 animate-floating-text">
-              LineLess
+              QTrack
             </div>
             <div className="absolute top-[10%] right-[5%] text-4xl font-semibold text-white opacity-10 animate-floating-text animation-delay-2000">
               Say goodbye to waiting lines

@@ -22,7 +22,7 @@ router.post("/send-otp", async (req, res) => {
   try {
     await sendEmail(
       email,
-      "Your LineLess OTP Code",
+      "Your QTrack OTP Code",
       // `JazakAllah Kahir for Registering to LineLess \nYour OTP code is: ${otp}. It will expire in 30 Seconds.`
       `Your OTP code is: ${otp}`,
       otp

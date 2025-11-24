@@ -236,7 +236,7 @@
   <div className="min-h-screen bg-gradient-to-tr from-gray-900 via-black to-gray-800 text-white font-sans">
     {/* Sidebar */}
     <aside className="w-16 sm:w-20 md:w-64 sm:mt-0 mt-7 fixed top-0 left-0 h-full bg-white/10 backdrop-blur-xl shadow-xl p-2 sm:p-4 md:p-6 space-y-2 sm:space-y-4 z-40">
-      <h1 className="text-lg md:text-xl lg:text-3xl font-bold text-white tracking-wide hidden sm:block">LineLess</h1>
+      <h1 className="text-lg md:text-xl lg:text-3xl font-bold text-white tracking-wide hidden sm:block">QTrack</h1>
 
       {selectedBusiness && (
         <div className="hidden sm:block border border-white/20 rounded-xl md:rounded-2xl bg-white/5 p-2 md:p-4 shadow-lg backdrop-blur-sm">
